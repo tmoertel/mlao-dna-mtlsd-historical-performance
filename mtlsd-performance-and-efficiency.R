@@ -156,7 +156,7 @@ qplot(year, value_ecdf,
 
 qplot(year, value_ecdf,
       colour = variable,
-      geom = "line",
+      geom = c("point", "line"),
       data = subset(pssa_ecdf, sd == "MTL" & grade == 11))
 
 
