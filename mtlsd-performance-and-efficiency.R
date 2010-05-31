@@ -41,7 +41,7 @@ school_districts_of_interest <- local({
   x <- matrix(ncol=4, byrow=T,
               c("MT LEBANON SD",        "MTL",    "blue",      interest_alpha,
                 "UPPER SAINT CLAIR SD", "USC",    "red",       interest_alpha,
-                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
+#                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
                 "NORTH ALLEGHENY SD",   "N ALG",  "brown",     interest_alpha,
                 "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest_alpha,
                 "QUAKER VALLEY SD",     "QKR VLY","purple",    interest_alpha,
@@ -82,7 +82,7 @@ load_pssa <- function(name,
   df <- read.csv(paste(sep="", "data/", name),
                  skip = skip, na.strings = "#NULL!",
                  as.is=c(grade, math, reading))
-  df <- subset(df, grepl("total", grade, invert=T))
+  df <- subset(df, ! grepl("total", df[[grade]], ignore.case=T))
   df <- selector(df)
   df <- data.frame(year = year,
                    aun = df[[aun]],
@@ -177,6 +177,26 @@ qplot(year, value_ecdf,
   scale_colour_manual(name = "School District",
                       values = school_districts_of_interest$color,
                       breaks = school_districts_of_interest$sd)
+
+qplot(year, value_ecdf,
+      colour = sd,
+      geom = "line",
+      facets = grade ~ variable,
+      data = subset(pssa_ecdf, sd != "Other")) +
+  scale_colour_manual(name = "School District",
+                      values = school_districts_of_interest$color,
+                      breaks = school_districts_of_interest$sd)
+
+qplot(year, value_ecdf,
+      colour = sd,
+      geom = "line",
+      facets = . ~ variable,
+      data = subset(pssa_ecdf, sd != "Other" & grade == 11)) +
+  scale_colour_manual(name = "School District",
+                      values = school_districts_of_interest$color,
+                      breaks = school_districts_of_interest$sd)
+
+
 
 
 
