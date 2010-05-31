@@ -29,27 +29,28 @@ library(ggplot2)
 
 ## Graphical preferences
 
-interest.alpha <- 0.5
-other.alpha <- 0.25
-other.color <- "darkgrey"
-other.SD <- "Other"
+interest_alpha <- 0.5
+other_alpha <- 0.25
+other_color <- "darkgrey"
+other_sd <- "Other"
 
 
 ## Which schools to highlight
 
-school.districts.of.interest <- local({
+school_districts_of_interest <- local({
   x <- matrix(ncol=4, byrow=T,
-              c("MT LEBANON SD",        "MTL",    "blue",      interest.alpha,
-                "UPPER SAINT CLAIR SD", "USC",    "red",       interest.alpha,
-                "BETHEL PARK SD",       "BTHL PK","green",     interest.alpha,
-                "NORTH ALLEGHENY SD",   "N ALG",  "brown",     interest.alpha,
-                "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest.alpha,
-                "QUAKER VALLEY SD",     "QKR VLY","purple",    interest.alpha,
-                NA,                     other.SD, other.color, other.alpha))
+              c("MT LEBANON SD",        "MTL",    "blue",      interest_alpha,
+                "UPPER SAINT CLAIR SD", "USC",    "red",       interest_alpha,
+                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
+                "NORTH ALLEGHENY SD",   "N ALG",  "brown",     interest_alpha,
+                "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest_alpha,
+                "QUAKER VALLEY SD",     "QKR VLY","purple",    interest_alpha,
+                NA,                     other_sd, other_color, other_alpha))
   x <- as.data.frame(x)
-  names(x) <- c("District", "SD", "color", "alpha")
+  names(x) <- c("district", "sd", "color", "alpha")
   x
 })
+
 
 
 
@@ -79,15 +80,17 @@ load_pssa <- function(name,
                       district = 4,
                       grade = 5) {
   df <- read.csv(paste(sep="", "data/", name),
-                 skip = skip, na.strings = "#NULL!", as.is=c(math, reading))
+                 skip = skip, na.strings = "#NULL!",
+                 as.is=c(grade, math, reading))
+  df <- subset(df, grepl("total", grade, invert=T))
   df <- selector(df)
-  data.frame(year = year,
-             aun = df[[aun]],
-             county = df[[county]],
-             district = df[[district]],
-             grade = df[[grade]],
-             math = as.numeric(df[[math]]),
-             reading = as.numeric(df[[reading]]))
+  df <- data.frame(year = year,
+                   aun = df[[aun]],
+                   county = df[[county]],
+                   district = df[[district]],
+                   grade = as.numeric(df[[grade]]),
+                   math = as.numeric(df[[math]]),
+                   reading = as.numeric(df[[reading]]))
 }
 
 pssa_2002 <- load_pssa("2002MathandReadingperformancelevelsalldistricts.csv",
@@ -126,16 +129,55 @@ pssa_merged <- rbind(pssa_2002,
                      pssa_2008,
                      pssa_2009)
 
-pssa_melted <- melt(pssa_merged, measure.vars = c("math", "reading"))
+pssa_merged_extended <- local({
+  df <- merge(pssa_merged, school_districts_of_interest, all.x=T)
+  within(df, {
+    sd <- factor(sd, levels = school_districts_of_interest$sd)
+    # grade <- factor(grade, labels = paste("Grade", sort(as.numeric(unique(grade)))))
+    others <- is.na(sd)
+    color[others] <- other_color
+    alpha[others] <- other_alpha
+    sd[others] <- other_sd
+  })
+})
 
-pssa_ecdf <- ddply(pssa_melted, .(year, grade),
+
+pssa_melted <- melt(pssa_merged_extended, measure.vars = c("math", "reading"))
+
+pssa_ecdf <- ddply(pssa_melted, .(year, grade, variable),
                    transform,
                    value_ecdf = ecdf(value)(value))
 
 qplot(year, value_ecdf,
       colour = variable,
       geom = "line",
-      data = subset(pssa_ecdf, grade == 11 & district == "MT LEBANON SD"))
+      facets = grade ~ .,
+      data = subset(pssa_ecdf, sd == "MTL"))
+
+qplot(year, value_ecdf,
+      colour = variable,
+      geom = "line",
+      data = subset(pssa_ecdf, sd == "MTL" & grade == 11))
+
+
+qplot(year, value_ecdf,
+      colour = sd,
+      geom = "line",
+      facets = . ~ variable,
+      data = subset(pssa_ecdf, sd %in% c("MTL", "USC") & grade == 11)) +
+  scale_colour_manual(name = "School District",
+                      values = school_districts_of_interest$color,
+                      breaks = school_districts_of_interest$sd)
+
+qplot(year, value_ecdf,
+      colour = sd,
+      geom = "line",
+      facets = grade ~ variable,
+      data = subset(pssa_ecdf, sd %in% c("MTL", "USC"))) +
+  scale_colour_manual(name = "School District",
+                      values = school_districts_of_interest$color,
+                      breaks = school_districts_of_interest$sd)
+
 
 
 ## Next, I merge the data sets into a single comprehensive data set
