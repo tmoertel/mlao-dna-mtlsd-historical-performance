@@ -122,6 +122,7 @@ pssa_2009 <- load_pssa("PSSA_Results_Math_and_Reading_District_2009.csv",
 
 
 pssa_merged <- rbind(pssa_2002,
+                     pssa_2003,
                      pssa_2004,
                      pssa_2005,
                      pssa_2006,
