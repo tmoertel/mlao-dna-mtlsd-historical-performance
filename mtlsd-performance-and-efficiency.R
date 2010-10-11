@@ -43,14 +43,15 @@ school_districts_of_interest <- local({
                 "UPPER SAINT CLAIR SD", "USC",    "red",       interest_alpha,
 #                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
                 "NORTH ALLEGHENY SD",   "N ALG",  "brown",     interest_alpha,
-                "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest_alpha,
-                "QUAKER VALLEY SD",     "QKR VLY","purple",    interest_alpha,
+#                "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest_alpha,
+#                "QUAKER VALLEY SD",     "QKR VLY","purple",    interest_alpha,
                 NA,                     other_sd, other_color, other_alpha))
   x <- as.data.frame(x)
   names(x) <- c("district", "sd", "color", "alpha")
   x
 })
 
+subject_districts <- subset(school_districts_of_interest, !is.na(district))
 
 
 
@@ -162,9 +163,12 @@ qplot(year, value_ecdf,
 
 
 qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools in Decline: 11th Grade PSSA",
+      ylab = "Ranking among Pennsylvania school districts",
+      xlab = "Year",
       colour = sd,
       geom = "line",
-      facets = . ~ variable,
+      facets = variable ~ .,
       data = subset(pssa_ecdf, sd %in% c("MTL", "USC") & grade == 11)) +
   scale_colour_manual(name = "School District",
                       values = school_districts_of_interest$color,
@@ -189,14 +193,55 @@ qplot(year, value_ecdf,
                       breaks = school_districts_of_interest$sd)
 
 qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools in Decline: 11th Grade",
+      ylab = paste(sep="\n",
+        "Ranking among Pennsylvania school districts",
+        "by portion of students testing at advanced level"),
+      xlab = "Year",
       colour = sd,
-      geom = "line",
-      facets = . ~ variable,
-      data = subset(pssa_ecdf, sd != "Other" & grade == 11)) +
+      geom = c("line"),
+      facets = variable ~ .,
+      data = subset(pssa_ecdf, sd != "Other" & grade == 11 & year >= 2004)) +
   scale_colour_manual(name = "School District",
-                      values = school_districts_of_interest$color,
-                      breaks = school_districts_of_interest$sd)
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  geom_text(aes(label = district, x = year + 0.075),
+                data = subset(pssa_ecdf,
+                  sd != "Other" & grade == 11 & year == 2009),
+                colour = "black",
+                hjust = 0,
+                size = 3) +
+  scale_x_continuous(breaks = 2004:2009, limits = c(2004, 2011),
+                     minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F) +
+  geom_point(shape=17)
 
+ggsave(file="mtlsd-pssa-rank-2004_2009-grade_11.pdf",
+       width=8, height=10, dpi=100)
+
+
+qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools in Decline: 8th Grade",
+      ylab = paste(sep="\n",
+        "Ranking among Pennsylvania school districts",
+        "by portion of students testing at advanced level"),
+      xlab = "Year",
+      colour = sd,
+      geom = c("point", "line"),
+      facets = variable ~ .,
+      data = subset(pssa_ecdf, sd != "Other" & grade == 8 & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  geom_text(aes(label = district, x = year + 0.075),
+                data = subset(pssa_ecdf,
+                  sd != "Other" & grade == 8 & year == 2009),
+                colour = "black",
+                hjust = 0,
+                size = 3) +
+  scale_x_continuous(breaks = 2004:2009, limits = c(2004, 2011))
 
 
 
