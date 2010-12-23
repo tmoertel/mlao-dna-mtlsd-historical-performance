@@ -5,13 +5,13 @@
 ## Analysis of Historical Performance of
 ## the Mt. Lebanon, Pennsylvania, School District.
 ##
-## Primary sources:  2001-09 PSSA data
+## Primary sources:  2001-10 PSSA data
 ##
 ## Analysis by the Mt. Lebanon Accountability Organization
 ## Tom Moertel <tom@mlao.org>
 ## http://www.mlao.org/
 ##
-## 2010-05-30
+## 2010-05-30 / Updated 2010-12-23
 ##
 ## This analysis is an R program:  http://www.r-project.org/
 ##=============================================================================
@@ -21,6 +21,7 @@
 options(digits = 2)
 
 library(ggplot2)
+
 
 ##=============================================================================
 ## Configuration
@@ -41,8 +42,8 @@ school_districts_of_interest <- local({
   x <- matrix(ncol=4, byrow=T,
               c("MT LEBANON SD",        "MTL",    "blue",      interest_alpha,
                 "UPPER SAINT CLAIR SD", "USC",    "red",       interest_alpha,
-#                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
                 "NORTH ALLEGHENY SD",   "N ALG",  "brown",     interest_alpha,
+#                "BETHEL PARK SD",       "BTHL PK","green",     interest_alpha,
 #                "FOX CHAPEL AREA SD",   "FOX CH", "orange",    interest_alpha,
 #                "QUAKER VALLEY SD",     "QKR VLY","purple",    interest_alpha,
                 NA,                     other_sd, other_color, other_alpha))
@@ -59,13 +60,7 @@ subject_districts <- subset(school_districts_of_interest, !is.na(district))
 ## Prepare the data for analysis
 ##
 ## Here I load the data sets and prepare them for my analysis.  I use
-## data from the following sources:
-##
-## PA Dept. of Education 2008-2009 PSSA Results
-## http://www.pde.state.pa.us/portal/server.pt/community/school_assessments/7442
-## http://www.portal.state.pa.us/portal/server.pt/gateway/PTARGS_0_123031_595946_0_0_18/PSSA_Results_Math_and_Reading_School_2009.xls
-## http://www.portal.state.pa.us/portal/server.pt/gateway/PTARGS_0_123031_595965_0_0_18/PSSA_Results_Writing_School_2009.xls
-## http://www.portal.state.pa.us/portal/server.pt/gateway/PTARGS_0_123031_595954_0_0_18/PSSA_Results_Science_School_2009.xls
+## 2002-2010 PSSA data from the PA Dept. of Education.
 ##=============================================================================
 
 ## First, I read in the data sets
@@ -121,6 +116,12 @@ pssa_2009 <- load_pssa("PSSA_Results_Math_and_Reading_District_2009.csv",
                          subset(df, Group=="All Students")
                        })
 
+pssa_2010 <- load_pssa("PSSA_Results_Math_and_Reading_District_2010.csv",
+                       2010, math=8, reading=13, skip=2,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
 
 pssa_merged <- rbind(pssa_2002,
                      pssa_2003,
@@ -129,7 +130,8 @@ pssa_merged <- rbind(pssa_2002,
                      pssa_2006,
                      pssa_2007,
                      pssa_2008,
-                     pssa_2009)
+                     pssa_2009,
+                     pssa_2010)
 
 pssa_merged_extended <- local({
   df <- merge(pssa_merged, school_districts_of_interest, all.x=T)
@@ -146,54 +148,16 @@ pssa_merged_extended <- local({
 
 pssa_melted <- melt(pssa_merged_extended, measure.vars = c("math", "reading"))
 
+pssa_melted <- subset(pssa_melted, !is.na(value))
+
 pssa_ecdf <- ddply(pssa_melted, .(year, grade, variable),
                    transform,
                    value_ecdf = ecdf(value)(value))
 
-qplot(year, value_ecdf,
-      colour = variable,
-      geom = "line",
-      facets = grade ~ .,
-      data = subset(pssa_ecdf, sd == "MTL"))
 
+p <-
 qplot(year, value_ecdf,
-      colour = variable,
-      geom = c("point", "line"),
-      data = subset(pssa_ecdf, sd == "MTL" & grade == 11))
-
-
-qplot(year, value_ecdf,
-      main = "Mt. Lebanon Schools in Decline: 11th Grade PSSA",
-      ylab = "Ranking among Pennsylvania school districts",
-      xlab = "Year",
-      colour = sd,
-      geom = "line",
-      facets = variable ~ .,
-      data = subset(pssa_ecdf, sd %in% c("MTL", "USC") & grade == 11)) +
-  scale_colour_manual(name = "School District",
-                      values = school_districts_of_interest$color,
-                      breaks = school_districts_of_interest$sd)
-
-qplot(year, value_ecdf,
-      colour = sd,
-      geom = "line",
-      facets = grade ~ variable,
-      data = subset(pssa_ecdf, sd %in% c("MTL", "USC"))) +
-  scale_colour_manual(name = "School District",
-                      values = school_districts_of_interest$color,
-                      breaks = school_districts_of_interest$sd)
-
-qplot(year, value_ecdf,
-      colour = sd,
-      geom = "line",
-      facets = grade ~ variable,
-      data = subset(pssa_ecdf, sd != "Other")) +
-  scale_colour_manual(name = "School District",
-                      values = school_districts_of_interest$color,
-                      breaks = school_districts_of_interest$sd)
-
-qplot(year, value_ecdf,
-      main = "Mt. Lebanon Schools in Decline: 11th Grade",
+      main = "Mt. Lebanon Schools Academic Rank: 11th Grade PSSA Scores",
       ylab = paste(sep="\n",
         "Ranking among Pennsylvania school districts",
         "by portion of students testing at advanced level"),
@@ -208,238 +172,18 @@ qplot(year, value_ecdf,
                       legend = F) +
   geom_text(aes(label = district, x = year + 0.075),
                 data = subset(pssa_ecdf,
-                  sd != "Other" & grade == 11 & year == 2009),
+                  sd != "Other" & grade == 11 & year == 2010),
                 colour = "black",
                 hjust = 0,
                 size = 3) +
-  scale_x_continuous(breaks = 2004:2009, limits = c(2004, 2011),
+  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
   geom_point(shape=17)
 
-ggsave(file="mtlsd-pssa-rank-2004_2009-grade_11.pdf",
+p + ylim(.95, 1)  # focus on our comparable group: top 5% of school districts
+
+ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.pdf",
        width=8, height=10, dpi=100)
 
-
-qplot(year, value_ecdf,
-      main = "Mt. Lebanon Schools in Decline: 8th Grade",
-      ylab = paste(sep="\n",
-        "Ranking among Pennsylvania school districts",
-        "by portion of students testing at advanced level"),
-      xlab = "Year",
-      colour = sd,
-      geom = c("point", "line"),
-      facets = variable ~ .,
-      data = subset(pssa_ecdf, sd != "Other" & grade == 8 & year >= 2004)) +
-  scale_colour_manual(name = "School District",
-                      values = subject_districts$color,
-                      breaks = subject_districts$sd,
-                      legend = F) +
-  geom_text(aes(label = district, x = year + 0.075),
-                data = subset(pssa_ecdf,
-                  sd != "Other" & grade == 8 & year == 2009),
-                colour = "black",
-                hjust = 0,
-                size = 3) +
-  scale_x_continuous(breaks = 2004:2009, limits = c(2004, 2011))
-
-
-
-
-## Next, I merge the data sets into a single comprehensive data set
-
-merge.pssa <- function(x, y)
-  merge(x, y, all = T, by = c("District", "School", "Grade"))
-pssa <- merge.pssa(merge.pssa(pssa.mr, pssa.w), pssa.s)
-
-
-## Next, I restrict the data set to all-student data (that is, I
-## remove the data that has been partitioned by demographic
-## characteristics) and add a new column "SD" to indicate whether a
-## particular row of data refers to a school district of interest --
-## Mt. Lebanon, Upper St. Clair, etc. -- and columns to indicate the
-## colors and transparency (alpha) levels to use in plotting each
-## district.
-
-pssa.all <- local({
-  df <- merge(pssa, school.districts.of.interest, all.x=T)
-  within(df, {
-    SD <- factor(SD, levels = school.districts.of.interest$SD)
-    Grade <- factor(Grade, labels = paste("Grade", sort(unique(Grade))))
-    others <- is.na(SD)
-    color[others] <- other.color
-    alpha[others] <- other.alpha
-    SD[others] <- other.SD
-  })
-})
-
-
-## Next, I extract those columns in which I am interested, mainly the
-## scores for advanced levels of performance.
-
-pssa.all.renamed <-
-  within(pssa.all, {
-    Reading <- X..Advanced.Reading
-    Math    <- X..Advanced.Math
-    Writing <- X..Advanced.Writing
-    Science <- X..Advanced.Science
-  })
-
-## ## Use the following scheme instead of the one above to replicate the
-## ## district's use of the combiniation of "proficient" and "advanced"
-## ## as their benchmark.
-##
-## pssa.all.renamed <-
-##   within(pssa.all, {
-##     Reading <- X..Advanced.Reading + X..Proficient.Reading
-##     Math    <- X..Advanced.Math    + X..Proficient.Math
-##     Writing <- X..Advanced.Writing + X..Proficient.Writing
-##     Science <- X..Advanced.Science + X..Proficient.Science
-##   })
-
-
-## Now, I "melt" the data of interest into an indexed data frame,
-## ready for use in summary graphics and statistics,
-
-pssa.all.melted <-
-  melt(pssa.all.renamed,
-       id=c("Grade", "District", "SD", "School"),
-       measure=c("Math", "Reading", "Writing", "Science"))
-
-
-## I reduce the data to its ECDF (empirical cumulative distribution
-## function) for the variables of interest.  A variable's ECDF relates
-## its values in an absolute sense to their relative rankings.
-
-pssa.all.melted.ecdf <-
-  ddply(pssa.all.melted, .(Grade, variable), function(df) {
-    xs <- na.omit(df$value)  # ignore schools that didn't participate
-    usxs <- sort(unique(xs))
-    usxs.ecdf <- if (length(xs) > 0) ecdf(xs)(usxs) else c()
-    data.frame(value = usxs, value.ecdf = 100 * usxs.ecdf)
-  })
-
-
-## I now extend the subset of the per-school statistics that are
-## "interesting" -- Mt. Lebanon, Upper St. Clair, etc. -- with their
-## ECDFs.
-
-pssa.interest.melted.ecdf <-
-  merge(subset(pssa.all.melted, SD != "Other"), pssa.all.melted.ecdf)
-
-write.csv(pssa.interest.melted.ecdf,
-          file = "pssa-school-rankings-vs-comparables.csv",
-          row.names = F)
-
-
-##=============================================================================
-## Summary graphic:  School Performance Rankings
-##
-## This graphic summarizes the performance of schools in both absolute
-## and relative terms, relating the portion of students who tested at
-## the advanced level at each school to that school's relative rank
-## among all Pennsylvania schools.
-## =============================================================================
-
-plot.rankings <-
-qplot(value, value.ecdf,
-      main = paste(sep="\n",
-        "How Mt. Lebanon compares to other Pennsylvania schools",
-        "Source: 2008-09 PSSA Tests (Advanced Skills)"),
-      xlab = "Percentage of students demonstrating advanced skills",
-      ylab = "Rank among Pennsylvania schools",
-      data = pssa.all.melted.ecdf,
-      colour = I(other.color),
-      geom = "step",
-      binwidth = 1,
-      facets = Grade ~ variable
-      ) +
-  geom_point(aes(colour = SD), alpha = 0.5, data = pssa.interest.melted.ecdf) +
-  geom_text(aes(label = School), data = pssa.interest.melted.ecdf,
-            hjust = -0.10, vjust = 0.5, size = 2, angle = -60) +
-  scale_colour_manual(name = "School District",
-                      values = school.districts.of.interest$color,
-                      breaks = school.districts.of.interest$SD) +
-  scale_x_continuous(breaks=seq(20, 100, 20)) +
-  scale_y_continuous(breaks=seq(20, 100, 20)) +
-  scale_alpha(legend = F)
-
-ggsave(file="mtlsd-2009-pssa-rankings.png",
-       plot = plot.rankings,
-       width=8, height=10, dpi=100)
-
-ggsave(file="mtlsd-2009-pssa-rankings.pdf",
-       plot = plot.rankings,
-       width=8.5, height=11)
-
-ggsave(file="mtlsd-2009-pssa-rankings-T.pdf",  # tabloid size
-       plot = plot.rankings,
-       width=11, height=17)
-
-ggsave(file="mtlsd-2009-pssa-rankings-P.pdf",  # poster size
-       plot = plot.rankings,
-       width=24, height=36)
-
-
-
-##=============================================================================
-## Summary graphic:  School Efficiency (Performance vs. Tuition)
-##
-## I will contrast the performance of each school with its tuition.
-## More efficient schools will offer higher performance for lower tuition.
-##=============================================================================
-
-## Now I load tuition data from the PA Dept. of Ed:
-## http://www.pde.state.pa.us/school_acct/cwp/view.asp?a=182&q=76814#tuitionrates
-
-tuition.rates <- read.csv("data/pa-tuition-rates-2008.csv", skip=5, header=T)
-
-
-## Now I merge the tuition data into the existing, melted performance data
-
-pssa.all.melted.vs.tuition <-
-  merge(pssa.all.melted, tuition.rates, sort=T,
-        by.x = c("District"),
-        by.y = c("School.District"))
-pssa.all.melted.vs.tuition <- within(pssa.all.melted.vs.tuition,
-                                     Tuition <- (Elementary + Secondary) / 2)
-
-
-## And I prepare the plot.
-
-plot.ed.eff <-
-qplot(value, Tuition, data=pssa.all.melted.vs.tuition,
-      main = paste(sep="\n",
-        "Mt. Lebanon School District Educational Efficiency",
-        "Performance vs. Tuition"),
-      xlab =  paste(sep="\n",
-        "Percentage of students demonstrating advanced skills",
-        "Source: 2008-2009 PSSA results"),
-      ylab = "Tuition (lower is better)",
-      alpha = I(0.25),
-      colour = SD) +
-  geom_point(alpha = 0.5,
-             data = subset(pssa.all.melted.vs.tuition, SD != "Other")) +
-  facet_grid(Grade ~ variable, margins=T) +
-  scale_x_continuous(breaks=c(25, 50, 75)) +
-  scale_y_continuous(formatter="dollar", breaks=c(10000,15000)) +
-  scale_colour_manual(name = "School District",
-                      breaks = school.districts.of.interest$SD,
-                      values = school.districts.of.interest$color) +
-  scale_alpha(legend = F)
-
-ggsave(file="mtlsd-2009-pssa-scores-vs-tuition.png",
-       plot = plot.ed.eff,
-       width=8, height=10, dpi=100)
-
-ggsave(file="mtlsd-2009-pssa-scores-vs-tuition.pdf",
-       plot = plot.ed.eff,
-       width=8.5, height=11)
-
-ggsave(file="mtlsd-2009-pssa-scores-vs-tuition-T.pdf",  # tabloid size
-       plot = plot.ed.eff,
-       width=11, height=17)
-
-ggsave(file="mtlsd-2009-pssa-scores-vs-tuition-P.pdf",  # poster size
-       plot = plot.ed.eff,
-       width=24, height=36)
+ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.png")
