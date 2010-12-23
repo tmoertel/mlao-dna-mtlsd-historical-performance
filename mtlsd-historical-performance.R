@@ -5,7 +5,7 @@
 ## Analysis of Historical Performance of
 ## the Mt. Lebanon, Pennsylvania, School District.
 ##
-## Primary sources:  2001-10 PSSA data
+## Primary sources:  2002-10 PSSA data
 ##
 ## Analysis by the Mt. Lebanon Accountability Organization
 ## Tom Moertel <tom@mlao.org>
@@ -179,11 +179,12 @@ qplot(year, value_ecdf,
   scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
-  geom_point(shape=17)
-
-p + ylim(.95, 1)  # focus on our comparable group: top 5% of school districts
+  geom_point(shape=17) +
+  ylim(.95, 1)  # focus on comparable group: top 5% of school districts
 
 ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.pdf",
+       plot=p,
        width=8, height=10, dpi=100)
 
-ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.png")
+ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.png",
+       plot=p)
