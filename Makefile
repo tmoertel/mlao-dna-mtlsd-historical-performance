@@ -7,7 +7,7 @@
 # 2009-11-07
 
 
-analysis = mtlsd-performance-and-efficiency.R
+analysis = mtlsd-historical-performance.R
 charts := $(shell bin/find_charts.pl $(analysis))
 
 
