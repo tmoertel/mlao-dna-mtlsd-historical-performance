@@ -1,0 +1,205 @@
+[
+  {
+    "op": "core/column-removal",
+    "description": "Remove column Column",
+    "columnName": "Column"
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column county using expression value.trim()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "county",
+    "expression": "value.trim()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column county using expression value.replace(/\\s+/,' ')",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "county",
+    "expression": "value.replace(/\\s+/,' ')",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column county using expression value.toTitlecase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "county",
+    "expression": "value.toTitlecase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column district using expression value.toUppercase()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value.toUppercase()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column district using expression value.trim()",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value.trim()",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/text-transform",
+    "description": "Text transform on cells in column district using expression value.replace(/\\s+/,' ')",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value.replace(/\\s+/,' ')",
+    "onError": "keep-original",
+    "repeat": false,
+    "repeatCount": 10
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SPRING-FORD AREA SD",
+          "SPRING-FORD AREA SD **"
+        ],
+        "to": "SPRING-FORD AREA SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTHMORELAND SD",
+          "SOUTHMORELAND SD **"
+        ],
+        "to": "SOUTHMORELAND SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WESTERN BEAVER COUNTY SD",
+          "WESTERN BEAVER COUNTY SD **"
+        ],
+        "to": "WESTERN BEAVER COUNTY SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SAYRE AREA SD",
+          "SAYRE AREA SD **"
+        ],
+        "to": "SAYRE AREA SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "JERSEY SHORE AREA SD",
+          "JERSEY SHORE AREA SD **"
+        ],
+        "to": "JERSEY SHORE AREA SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BRISTOL TOWNSHIP SD",
+          "BRISTOL TOWNSHIP SD **"
+        ],
+        "to": "BRISTOL TOWNSHIP SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "TUSCARORA SD",
+          "TUSCARORA SD **"
+        ],
+        "to": "TUSCARORA SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "POTTSGROVE SD",
+          "POTTSGROVE SD **"
+        ],
+        "to": "POTTSGROVE SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BIG SPRING SD",
+          "BIG SPRING SD **"
+        ],
+        "to": "BIG SPRING SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "OXFORD AREA SD",
+          "OXFORD AREA SD **"
+        ],
+        "to": "OXFORD AREA SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "MIFFLIN COUNTY SD",
+          "MIFFLIN COUNTY SD **"
+        ],
+        "to": "MIFFLIN COUNTY SD"
+      },
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "CENTRAL CAMBRIA SD",
+          "CENTRAL CAMBRIA SD **"
+        ],
+        "to": "CENTRAL CAMBRIA SD"
+      }
+    ]
+  }
+]
