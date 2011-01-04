@@ -21,7 +21,7 @@
 options(digits = 2)
 
 library(ggplot2)
-
+library(directlabels)
 
 ##=============================================================================
 ## Configuration
@@ -114,3 +114,35 @@ ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.pdf",
 
 ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.png",
        plot=p)
+
+
+
+## National Merit Scholarship Qualifying Test
+
+nmsqt <- read.csv("data/mtlsd-nmsqt.csv", comment="#")
+
+nmsqt_rel <- with(nmsqt, {
+  data.frame(class         = class,
+             semifinalist  = semifinalists / class_pool,
+             commended     = commended / class_pool,
+             any_honor     = (semifinalists + commended) / class_pool)
+})
+
+nmsqt_rel_m <- melt(nmsqt_rel, id="class")
+
+p <-
+qplot(class, value, data=nmsqt_rel_m,
+      main = paste(sep="\n",
+        "Mt. Lebanon School District Historical Performance",
+        "on National Merit Scholarship Qualifying Test"),
+      ylab = "Portion of class receiving honor",
+      xlab = "Class",
+      color=variable,
+      geom=c("point", "smooth"), method="lm") +
+  geom_line(alpha=0.25) +
+  scale_y_continuous(formatter="percent")
+
+p <- direct.label(p, list("first.points", hjust=-.1, fontsize=4))
+
+ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
+
