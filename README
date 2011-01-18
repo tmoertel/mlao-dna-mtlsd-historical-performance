@@ -18,6 +18,9 @@ operating system (e.g., Linux or Mac OS X) and the following software:
 * The ggplot2 package for R
   http://had.co.nz/ggplot2/
 
+* The directlabels package for R
+  http://directlabels.r-forge.r-project.org/
+
 * GNU Make (probably already installed on your computer)
   http://www.gnu.org/software/make/
 

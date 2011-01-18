@@ -23,9 +23,160 @@ options(digits = 2)
 library(ggplot2)
 library(directlabels)
 
+
 ##=============================================================================
-## Configuration
+## Analysis
 ##=============================================================================
+
+## Load the merged, cleaned multi-year PSSA data and prepare it to be plotted
+
+pssa_merged <- read.csv("data/pssa-merged-and-cleaned.csv")
+pssa_merged <- transform(pssa_merged, grade=factor(grade), aun=factor(aun))
+
+achievement_labels <- c("advanced", "proficient", "basic", "below basic")
+
+pssa_melted <- melt(pssa_merged, 1:5)
+pssa_melted <- subset(pssa_melted, !is.na(value))  # trim sds w/o results
+pssa_melted <-
+  transform(pssa_melted,
+            subject = laply(strsplit(as.character(variable),"_"),identity)[,1],
+            achievement = factor(
+              laply(strsplit(as.character(variable), "_"), identity)[,2],
+              levels = c("a", "p", "b", "bb"),
+              labels = achievement_labels))
+
+mtlsd_melted    <- subset(pssa_melted, district == "MT LEBANON SD")
+mtlsd_melted_11 <- subset(mtlsd_melted, grade == "11")
+
+
+## Plot MTLSD's 11th-grade PSSA results by achievement level (stacked ribbons)
+
+p <-
+qplot(year, value/100, data=mtlsd_melted_11,
+      facets = subject ~ grade, geom="area", fill=achievement,
+      main = "Mt. Lebanon School District: 11th Grade PSSA",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.25),
+            size = 3,
+            hjust = 0,
+            data = ddply(
+              ddply(mtlsd_melted_11, 2:6,
+                    subset, year == min(year)),
+              .(grade, subject),
+              transform,
+              value = cumsum(value) - value/2)) +
+  scale_y_continuous(formatter="percent") +
+  opts(legend.position = "none")
+
+ggsave("mtlsd-pssa-11gr-historical-achievement-stacked.pdf",
+       plot=p, width=8.5, height=11)
+
+
+## Plot rate of MTLSD's achievement decline since 2005
+
+mtlsd_melted_11_2005_on <- subset(mtlsd_melted_11, year >= 2005)
+
+p <-
+qplot(year, value/100, data=mtlsd_melted_11_2005_on,
+      facets = subject ~ grade, color=achievement,
+      main = "Mt. Lebanon School District: 11th Grade PSSA",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1,
+      geom = c("point", "smooth"),
+      method = "lm",
+      shape = I(17)
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.1),
+            size = 3,
+            hjust = 0, vjust = 0.5,
+            data = ddply(
+              ddply(subset(mtlsd_melted_11_2005_on), 2:6,
+                    subset, year == min(year)),
+              .(grade, subject),
+              transform,
+              value = value)) +
+  scale_y_continuous(formatter="percent") +
+  opts(legend.position = "none")
+
+ggsave("mtlsd-pssa-11gr-historical-achievement-trend-since-2005.pdf",
+       plot=p, width=8.5, height=11)
+
+
+
+##############################################################################
+# Comparative analysis to other top school districts
+
+peers_melted <- subset(pssa_melted,
+                       district == "UPPER SAINT CLAIR SD" |
+                       district == "MT LEBANON SD" |
+                       district == "NORTH ALLEGHENY SD" )
+
+peers_melted_11 <- subset(peers_melted, grade == "11")
+
+
+p <-
+qplot(year, value/100, data=peers_melted_11,
+      facets = subject ~ district, geom="area", fill=achievement,
+      main = "Achievement in 11th Grade PSSA",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.25),
+            size = 3,
+            hjust = 0,
+            data = ddply(
+              ddply(subset(peers_melted_11, district == "MT LEBANON SD"),
+                    2:6, subset, year == min(year)),
+              .(grade, subject, district),
+              transform,
+              value = cumsum(value) - value/2)) +
+  scale_y_continuous(formatter="percent") +
+  opts(legend.position = "none")
+
+ggsave("peers-pssa-11gr-historical-achievement-stacked.pdf",
+       plot=p, width=11, height=8.5)
+
+peers_melted_11_2005_on <- subset(peers_melted_11, year >= 2005)
+
+p <-
+qplot(year, value/100, data=peers_melted_11_2005_on,
+      facets = subject ~ district, color=achievement,
+      main = "Achievement in 11th Grade PSSA",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1,
+      geom = c("point", "smooth"),
+      method = "lm",
+      se = F,
+      shape = 17
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.1),
+            size = 3,
+            color = "black",
+            hjust = 0, vjust = 0.5,
+            data = ddply(
+              ddply(subset(peers_melted_11_2005_on, district == "MT LEBANON SD"),
+                    2:6, subset, year == min(year)),
+              .(grade, subject, district),
+              transform,
+              value = value)) +
+  scale_y_continuous(formatter="percent") +
+  theme_bw() +
+  opts(legend.position = "none")
+
+ggsave("peers-pssa-11gr-historical-achievement-trend-since-2005.pdf",
+       plot=p, width=11, height=8.5)
+
+
+##############################################################################
+## Plot MTLSD's rank (among all state school districts) by portion of
+## students who tested at the "advanced" achievement level
+
 
 
 ## Graphical preferences
@@ -55,15 +206,16 @@ school_districts_of_interest <- local({
 subject_districts <- subset(school_districts_of_interest, !is.na(district))
 
 
-## Load the data and prepare it to be plotted
+## Compute rankings
+pssa_melted_a <- subset(pssa_melted, achievement == "advanced")
+pssa_ecdf <- ddply(pssa_melted_a, .(year, grade, variable),
+                   transform,
+                   value_ecdf = ecdf(value)(value))
 
-pssa_merged <- read.csv("data/pssa-merged-and-cleaned.csv")
-
-pssa_merged_extended <- local({
-  df <- merge(pssa_merged, school_districts_of_interest, all.x=T)
+pssa_ecdf_extended <- local({
+  df <- merge(pssa_ecdf, school_districts_of_interest, all.x=T)
   within(df, {
     sd <- factor(sd, levels = school_districts_of_interest$sd)
-    # grade <- factor(grade, labels = paste("Grade", sort(as.numeric(unique(grade)))))
     others <- is.na(sd)
     color[others] <- other_color
     alpha[others] <- other_alpha
@@ -71,15 +223,6 @@ pssa_merged_extended <- local({
   })
 })
 
-pssa_melted <- melt(pssa_merged_extended, measure.vars = c("math", "reading"))
-
-pssa_melted <- subset(pssa_melted, !is.na(value))
-
-pssa_ecdf <- ddply(pssa_melted, .(year, grade, variable),
-                   transform,
-                   value_ecdf = ecdf(value)(value))
-
-## Plot the data
 
 p <-
 qplot(year, value_ecdf,
@@ -90,14 +233,15 @@ qplot(year, value_ecdf,
       xlab = "Year",
       colour = sd,
       geom = c("line"),
-      facets = variable ~ .,
-      data = subset(pssa_ecdf, sd != "Other" & grade == 11 & year >= 2004)) +
+      facets = subject ~ .,
+      data = subset(pssa_ecdf_extended,
+        sd != "Other" & grade == 11 & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
                       legend = F) +
   geom_text(aes(label = district, x = year + 0.075),
-                data = subset(pssa_ecdf,
+                data = subset(pssa_ecdf_extended,
                   sd != "Other" & grade == 11 & year == 2010),
                 colour = "black",
                 hjust = 0,
@@ -108,15 +252,16 @@ qplot(year, value_ecdf,
   geom_point(shape=17) +
   ylim(.95, 1)  # focus on comparable group: top 5% of school districts
 
-ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.pdf",
+ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.pdf",
        plot=p,
        width=8, height=10, dpi=100)
 
-ggsave(file="mtlsd-pssa-rank-2004_2010-grade_11.png",
+ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.png",
        plot=p)
 
 
 
+##############################################################################
 ## National Merit Scholarship Qualifying Test
 
 nmsqt <- read.csv("data/mtlsd-nmsqt.csv", comment="#")
@@ -138,7 +283,8 @@ qplot(class, value, data=nmsqt_rel_m,
       ylab = "Portion of class receiving honor",
       xlab = "Class",
       color=variable,
-      geom=c("point", "smooth"), method="lm") +
+      shape=I(17),
+      geom=c("point", "smooth"), method="lm", se=F) +
   geom_line(alpha=0.25) +
   scale_y_continuous(formatter="percent")
 
@@ -146,3 +292,121 @@ p <- direct.label(p, list("first.points", hjust=-.1, fontsize=4))
 
 ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
 
+ggsave(file="mtlsd-nmsqt-2002_2011.pdf")
+
+
+
+##############################################################################
+##   W O R K S P A C E
+##############################################################################
+
+## Plot the MTLSD ranking among Pennsylvania school districts by
+## portion of students testing at "advanced" level of achievement
+## (all grades)
+
+p <-
+qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools Academic Rank: PSSA Scores",
+      ylab = paste(sep="\n",
+        "Ranking among Pennsylvania school districts",
+        "by portion of students testing at advanced level"),
+      xlab = "Year",
+      colour = sd,
+      shape=I(17),
+      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
+                     minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F) +
+  geom_line(alpha=0.1) +
+  facet_grid(grade ~ variable)
+
+
+## Plot the portion of MTLSD students who tested at the "advanced"
+## level of achievement (11th grade)
+
+p <-
+qplot(year, value,
+      main = "Mt. Lebanon Schools Academic Performance: PSSA Scores",
+      ylab = "Portion of students testing at advanced level",
+      xlab = "Year",
+      colour = sd,
+      geom = c("point", "smooth"),
+      method = "lm",
+      asp = 1,
+      data = subset(pssa_ecdf_extended,
+        grade == 11 & sd == "MTL" & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  scale_x_continuous(minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F) +
+  geom_line(alpha=0.1) +
+  facet_grid(grade ~ variable)
+
+
+## Plot the portion of MTLSD students who tested at the "advanced"
+## level of achievement (11th grade)
+
+p <-
+qplot(year, value,
+      main = "Mt. Lebanon Schools Academic Performance: PSSA Scores",
+      ylab = "Portion of students testing at advanced level",
+      xlab = "Year",
+      colour = sd,
+      geom = c("point", "smooth"),
+      method = "lm",
+      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  scale_x_continuous(minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F) +
+  geom_line(alpha=0.1) +
+  facet_grid(grade ~ variable)
+
+p <-
+qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools Academic Rank: PSSA Scores",
+      ylab = paste(sep="\n",
+        "Ranking among Pennsylvania school districts",
+        "by portion of students testing at advanced level"),
+      xlab = "Year",
+      colour = sd,
+      geom = c("point", "smooth"),
+      method = "lm",
+      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
+                     minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F) +
+  geom_line(alpha=0.1) +
+  facet_grid(grade ~ variable)
+
+p <-
+qplot(year, value_ecdf,
+      main = "Mt. Lebanon Schools Academic Rank: 11th Grade PSSA Scores",
+      ylab = paste(sep="\n",
+        "Ranking among Pennsylvania school districts",
+        "by portion of students testing at advanced level"),
+      xlab = "Year",
+      colour = sd,
+      geom = c("point", "smooth"),
+      method = "lm",
+      facets = variable ~ .,
+      data = subset(pssa_ecdf_extended,
+        sd == "MTL" & grade == 11 & year >= 2004)) +
+  scale_colour_manual(name = "School District",
+                      values = subject_districts$color,
+                      breaks = subject_districts$sd,
+                      legend = F) +
+  scale_x_continuous(minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F)
