@@ -292,7 +292,7 @@ p <- direct.label(p, list("first.points", hjust=-.1, fontsize=4))
 
 ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
 
-ggsave(file="mtlsd-nmsqt-2002_2011.pdf")
+ggsave(file="mtlsd-nmsqt-2002_2011.pdf", plot=p)
 
 
 
