@@ -106,6 +106,16 @@ ggsave("mtlsd-pssa-11gr-historical-achievement-trend-since-2005.pdf",
        plot=p, width=8.5, height=11)
 
 
+## Extract the rate of change, since 2005, in the portion of students
+## at each level of achievement (11th grade)
+
+daply(mtlsd_melted_11_2005_on, .(subject, achievement), function(df) {
+  ## center on current yr to make intercept predict current yr's achievement
+  df$year <- df$year - max(df$year)
+  lm(value ~ year, data=df)$coeff
+})
+
+
 
 ##############################################################################
 # Comparative analysis to other top school districts
@@ -258,6 +268,36 @@ ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.pdf",
 
 ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.png",
        plot=p)
+
+
+
+## Plot the ECDF
+
+pssa_ecdf_reduced <-
+  ddply(pssa_ecdf, .(year, grade, subject, achievement), function(df) {
+    not_duped <- !duplicated(df$value)
+    data.frame(value = sort(df$value[not_duped]),
+               value_ecdf = sort(df$value_ecdf[not_duped]))
+  })
+
+p <-
+qplot(value/100, value_ecdf,
+      main = paste(sep="\n",
+        "PSSA Advanced Performance (11th Grade)",
+        "Relating local performance to statewide rankings"),
+      ylab = "Ranking among Pennsylvania school districts",
+      xlab = "Portion of students testing at advanced level",
+      colour = sd,
+      asp = 1,
+      geom = c("step"),
+      facets = grade ~ subject,
+      data = subset(pssa_ecdf_reduced,
+        grade == "11" & achievement == "advanced" & year == max(year))) +
+  scale_x_continuous(formatter="percent") +
+  scale_y_continuous(formatter="percent")
+
+ggsave(file="mtlsd-pssa-11gr-ecdf.pdf",
+       plot=p, width=11, height=7)
 
 
 
