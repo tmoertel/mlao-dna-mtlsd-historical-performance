@@ -450,3 +450,86 @@ qplot(year, value_ecdf,
                       legend = F) +
   scale_x_continuous(minor_breaks = F) +
   scale_y_continuous(minor_breaks = F)
+
+
+##=============================================================================
+## writing
+##=============================================================================
+
+wr_merged <- read.csv("data/writing-merged-and-cleaned.csv")
+wr_merged <- transform(wr_merged, grade=factor(grade), aun=factor(aun))
+
+achievement_labels <- c("advanced", "proficient", "basic", "below basic")
+
+wr_melted <- melt(wr_merged, 1:5)
+wr_melted <- subset(wr_melted, !is.na(value))  # trim sds w/o results
+wr_melted <-
+  transform(wr_melted,
+            subject = laply(strsplit(as.character(variable),"_"),identity)[,1],
+            achievement = factor(
+              laply(strsplit(as.character(variable), "_"), identity)[,2],
+              levels = c("a", "p", "b", "bb"),
+              labels = achievement_labels))
+
+peers_wr_melted <- subset(wr_melted,
+                          district == "UPPER SAINT CLAIR SD" |
+                          district == "MT LEBANON SD" |
+                          district == "NORTH ALLEGHENY SD" )
+
+peers_wr_melted_11 <- subset(peers_wr_melted, grade == "11")
+
+
+p <-
+qplot(year, value/100, data=peers_wr_melted_11,
+      facets = subject ~ district, geom="area", fill=achievement,
+      main = "Achievement in 11th Grade PSSA Writing",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.25),
+            size = 3,
+            hjust = 0,
+            data = ddply(
+              ddply(subset(peers_wr_melted_11, district == "MT LEBANON SD"),
+                    2:6, subset, year == min(year)),
+              .(grade, subject, district),
+              transform,
+              value = cumsum(value) - value/2)) +
+  scale_y_continuous(formatter="percent") +
+  opts(legend.position = "none")
+
+ggsave("peers-wr-11gr-historical-achievement-stacked.pdf",
+       plot=p, width=11, height=8.5)
+
+
+
+p <-
+qplot(year, value/100, data=peers_wr_melted_11,
+      facets = subject ~ district, color=achievement,
+      main = "Achievement in 11th Grade PSSA Writing",
+      xlab = "Year",
+      ylab = "Portion of students testing at given level of achievement",
+      asp = 1,
+      geom = c("point", "smooth"),
+      method = "lm",
+      se = F,
+      shape = 17
+      ) +
+  geom_text(aes(label = achievement, x = year + 0.1),
+            size = 3,
+            color = "black",
+            hjust = 0, vjust = 0.5,
+            data = ddply(
+              ddply(subset(peers_wr_melted_11,
+                           district == "MT LEBANON SD"),
+                    2:6, subset, year == min(year)),
+              .(grade, subject, district),
+              transform,
+              value = value)) +
+  scale_y_continuous(formatter="percent") +
+  theme_bw() +
+  opts(legend.position = "none")
+
+ggsave("peers-wr-11gr-historical-achievement-trend-since-2005.pdf",
+       plot=p, width=11, height=8.5)
