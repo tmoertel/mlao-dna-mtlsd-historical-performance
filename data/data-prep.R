@@ -8,7 +8,9 @@
 ## 2002-2010 PSSA data from the PA Dept. of Education.
 ##=============================================================================
 
-## First, I read in the data sets
+##=============================================================================
+## First, I read in the data sets for math and reading
+##=============================================================================
 
 load_pssa <- function(name,
                       year,
@@ -96,3 +98,94 @@ write.csv(pssa_merged, file="pssa_merged_raw.csv")
 # data-cleaning transformations specified in the file
 # google-refine-prep.json, exporting the result, finally, as the file
 # pssa-merged-and-cleaned.csv.
+
+
+
+##=============================================================================
+## Next, I read in the data sets for writing
+##=============================================================================
+
+load_pssa_subj <-
+  function(subject,
+           file,
+           year,
+           cols,
+           skip = 0,
+           selector = function(df) df,
+           aun = 1,
+           county = 2,
+           district = 4,
+           grade = 5) {
+    df <- read.csv(file,
+                   skip = skip, na.strings = "#NULL!",
+                   as.is=c(grade, cols))
+    df <- subset(df, ! grepl("total", df[[grade]], ignore.case=T))
+    df <- selector(df)
+    df <- data.frame(year = year,
+                     aun = df[[aun]],
+                     county = df[[county]],
+                     district = df[[district]],
+                     grade = as.numeric(df[[grade]]),
+                     a  = as.numeric(df[[cols[1]]]),
+                     p  = as.numeric(df[[cols[2]]]),
+                     b  = as.numeric(df[[cols[3]]]),
+                     bb = as.numeric(df[[cols[4]]]))
+    names(df)[6:9] <- paste(sep="_", subject, c("a", "p", "b", "bb"))
+    df
+  }
+
+wr_2005 <-
+  load_pssa_subj("writing",
+                 "2005Districtlevelperformancelevelresults11thwriting.csv",
+                 2005, cols=7:10)
+
+wr_2006 <-
+  load_pssa_subj("writing",
+                 "2006 District Level Writing PSSA Results.csv",
+                 2006, cols=7:10, skip=3)
+
+wr_2007 <-
+  load_pssa_subj("writing",
+                 "2007 Writing District Level PSSA Results.csv",
+                 2007, cols=7:10, skip=4)
+
+wr_2008 <-
+  load_pssa_subj("writing",
+                 "2008 District Level Writing PSSA Results.csv",
+                 2008, cols=7:10, skip=4)
+
+wr_2009 <-
+  load_pssa_subj("writing",
+                 "PSSA_Results_Writing_District_2009.csv",
+                 2009, cols=8:11, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
+wr_2010 <-
+  load_pssa_subj("writing",
+                 "PSSA_Results_Writing_District_2010.csv",
+                 2010, cols=8:11, skip=2,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
+# Then I merge them into a single, composite data set
+
+wr_merged <- rbind(wr_2005,
+                   wr_2006,
+                   wr_2007,
+                   wr_2008,
+                   wr_2009,
+                   wr_2010)
+
+
+# Next, I write this composite data set into a file that I can
+# further clean using Google Refine
+
+write.csv(wr_merged, file="wr_merged_raw.csv")
+
+# After saving this data, I load it into Google Refine and apply the
+# data-cleaning transformations specified in the file
+# google-refine-prep.json, exporting the result, finally, as the file
+# writing-merged-and-cleaned.csv.
