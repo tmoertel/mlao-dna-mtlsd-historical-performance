@@ -92,12 +92,12 @@ pssa_merged <- rbind(pssa_2002,
 # Next, I write this composite data set into a file that I can
 # further clean using Google Refine
 
-write.csv(pssa_merged, file="pssa_merged_raw.csv")
+write.csv(pssa_merged, file="pssa_math_reading_merged_raw.csv")
 
 # After saving this data, I load it into Google Refine and apply the
 # data-cleaning transformations specified in the file
 # google-refine-prep.json, exporting the result, finally, as the file
-# pssa-merged-and-cleaned.csv.
+# pssa-math-reading-merged-and-cleaned.csv.
 
 
 
@@ -183,9 +183,55 @@ wr_merged <- rbind(wr_2005,
 # Next, I write this composite data set into a file that I can
 # further clean using Google Refine
 
-write.csv(wr_merged, file="wr_merged_raw.csv")
+write.csv(wr_merged, file="pssa_writing_merged_raw.csv")
 
 # After saving this data, I load it into Google Refine and apply the
 # data-cleaning transformations specified in the file
 # google-refine-prep.json, exporting the result, finally, as the file
-# writing-merged-and-cleaned.csv.
+# pssa-writing-merged-and-cleaned.csv.
+
+
+
+
+##=============================================================================
+## Next, I read in the data sets for science
+##=============================================================================
+
+
+sc_2008 <-
+  load_pssa_subj("science",
+                 "2008 District Level Science PSSA Results.csv",
+                 2008, cols=7:10, skip=4)
+
+sc_2009 <-
+  load_pssa_subj("science",
+                 "PSSA_Results_Science_District_2009.csv",
+                 2009, cols=8:11, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
+sc_2010 <-
+  load_pssa_subj("science",
+                 "PSSA_Results_Science_District_2010.csv",
+                 2010, cols=8:11, skip=2,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
+# Then I merge them into a single, composite data set
+
+sc_merged <- rbind(sc_2008,
+                   sc_2009,
+                   sc_2010)
+
+
+# Next, I write this composite data set into a file that I can
+# further clean using Google Refine
+
+write.csv(sc_merged, file="pssa_science_merged_raw.csv")
+
+# After saving this data, I load it into Google Refine and apply the
+# data-cleaning transformations specified in the file
+# google-refine-prep.json, exporting the result, finally, as the file
+# pssa-science-merged-and-cleaned.csv.
