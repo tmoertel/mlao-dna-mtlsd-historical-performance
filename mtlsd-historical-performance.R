@@ -30,30 +30,46 @@ library(directlabels)
 
 ## Load the merged, cleaned multi-year PSSA data and prepare it to be plotted
 
-pssa_merged <- read.csv("data/pssa-merged-and-cleaned.csv")
-pssa_merged <- transform(pssa_merged, grade=factor(grade), aun=factor(aun))
-
 achievement_labels <- c("advanced", "proficient", "basic", "below basic")
 
-pssa_melted <- melt(pssa_merged, 1:5)
-pssa_melted <- subset(pssa_melted, !is.na(value))  # trim sds w/o results
-pssa_melted <-
-  transform(pssa_melted,
+load_melted <- function(file) melt(read.csv(file), 1:5)
+
+pssa_mr <- load_melted("data/pssa-math-reading-merged-and-cleaned.csv")
+pssa_wr <- load_melted("data/pssa-writing-merged-and-cleaned.csv")
+pssa_sc <- load_melted("data/pssa-science-merged-and-cleaned.csv")
+
+pssa <- rbind(pssa_mr, pssa_wr, pssa_sc)
+pssa <- subset(pssa, !is.na(value))  # trim sds w/o results
+pssa <- transform(pssa,
+            grade = factor(grade),
+            value = value/100,  # turn percentages (34%) into portions (0.34)
+            aun = NULL,
+            county = NULL,
             subject = laply(strsplit(as.character(variable),"_"),identity)[,1],
             achievement = factor(
               laply(strsplit(as.character(variable), "_"), identity)[,2],
               levels = c("a", "p", "b", "bb"),
               labels = achievement_labels))
 
-mtlsd_melted    <- subset(pssa_melted, district == "MT LEBANON SD")
-mtlsd_melted_11 <- subset(mtlsd_melted, grade == "11")
+
+## Extract convenient subsets for MTSLD and peers
+
+mtlsd           <- "MT LEBANON SD"
+peers           <- c("UPPER SAINT CLAIR SD", "NORTH ALLEGHENY SD")
+mtlsd_and_peers <- c(mtlsd, peers)
+
+pssa_peers      <- subset(pssa, district %in% mtlsd_and_peers)
+pssa_peers_11   <- subset(pssa_peers, grade == "11")
+
+pssa_mtlsd      <- subset(pssa_peers, district == "MT LEBANON SD")
+pssa_mtlsd_11   <- subset(pssa_mtlsd, grade == "11")
 
 
 ## Plot MTLSD's 11th-grade PSSA results by achievement level (stacked ribbons)
 
 p <-
-qplot(year, value/100, data=mtlsd_melted_11,
-      facets = subject ~ grade, geom="area", fill=achievement,
+qplot(year, value, data=pssa_mtlsd_11,
+      facets = subject ~ ., geom="area", fill=achievement,
       main = "Mt. Lebanon School District: 11th Grade PSSA",
       xlab = "Year",
       ylab = "Portion of students testing at given level of achievement",
@@ -62,54 +78,47 @@ qplot(year, value/100, data=mtlsd_melted_11,
   geom_text(aes(label = achievement, x = year + 0.25),
             size = 3,
             hjust = 0,
-            data = ddply(
-              ddply(mtlsd_melted_11, 2:6,
-                    subset, year == min(year)),
-              .(grade, subject),
-              transform,
+            data = transform(
+              subset(pssa_mtlsd_11,
+                     year == min(year) & subject == min(levels(subject))),
               value = cumsum(value) - value/2)) +
   scale_y_continuous(formatter="percent") +
   opts(legend.position = "none")
 
 ggsave("mtlsd-pssa-11gr-historical-achievement-stacked.pdf",
-       plot=p, width=8.5, height=11)
+       plot=p, width=8.5, height=11, useDingbats=F)
 
 
-## Plot rate of MTLSD's achievement decline since 2005
+## Plot rate of change in MTLSD achievement portions since 2005
 
-mtlsd_melted_11_2005_on <- subset(mtlsd_melted_11, year >= 2005)
+pssa_mtlsd_11_2005_on <- subset(pssa_mtlsd_11, year >= 2005)
 
 p <-
-qplot(year, value/100, data=mtlsd_melted_11_2005_on,
+qplot(year, value, data=pssa_mtlsd_11_2005_on,
       facets = subject ~ grade, color=achievement,
       main = "Mt. Lebanon School District: 11th Grade PSSA",
       xlab = "Year",
       ylab = "Portion of students testing at given level of achievement",
       asp = 1,
       geom = c("point", "smooth"),
-      method = "lm",
-      shape = I(17)
+      method = "lm"
       ) +
   geom_text(aes(label = achievement, x = year + 0.1),
             size = 3,
             hjust = 0, vjust = 0.5,
-            data = ddply(
-              ddply(subset(mtlsd_melted_11_2005_on), 2:6,
-                    subset, year == min(year)),
-              .(grade, subject),
-              transform,
-              value = value)) +
+            data = subset(pssa_mtlsd_11_2005_on,
+                     year == min(year) & subject == min(levels(subject)))) +
   scale_y_continuous(formatter="percent") +
   opts(legend.position = "none")
 
 ggsave("mtlsd-pssa-11gr-historical-achievement-trend-since-2005.pdf",
-       plot=p, width=8.5, height=11)
+       plot=p, width=8.5, height=11, useDingbats=F)
 
 
 ## Extract the rate of change, since 2005, in the portion of students
 ## at each level of achievement (11th grade)
 
-daply(mtlsd_melted_11_2005_on, .(subject, achievement), function(df) {
+daply(pssa_mtlsd_11_2005_on, .(subject, achievement), function(df) {
   ## center on current yr to make intercept predict current yr's achievement
   df$year <- df$year - max(df$year)
   lm(value ~ year, data=df)$coeff
@@ -120,16 +129,9 @@ daply(mtlsd_melted_11_2005_on, .(subject, achievement), function(df) {
 ##############################################################################
 # Comparative analysis to other top school districts
 
-peers_melted <- subset(pssa_melted,
-                       district == "UPPER SAINT CLAIR SD" |
-                       district == "MT LEBANON SD" |
-                       district == "NORTH ALLEGHENY SD" )
-
-peers_melted_11 <- subset(peers_melted, grade == "11")
-
 
 p <-
-qplot(year, value/100, data=peers_melted_11,
+qplot(year, value, data=pssa_peers_11,
       facets = subject ~ district, geom="area", fill=achievement,
       main = "Achievement in 11th Grade PSSA",
       xlab = "Year",
@@ -139,22 +141,21 @@ qplot(year, value/100, data=peers_melted_11,
   geom_text(aes(label = achievement, x = year + 0.25),
             size = 3,
             hjust = 0,
-            data = ddply(
-              ddply(subset(peers_melted_11, district == "MT LEBANON SD"),
-                    2:6, subset, year == min(year)),
-              .(grade, subject, district),
-              transform,
+            data = transform(
+              subset(pssa_mtlsd_11,
+                     year == min(year) & subject == min(levels(subject))),
               value = cumsum(value) - value/2)) +
   scale_y_continuous(formatter="percent") +
   opts(legend.position = "none")
 
 ggsave("peers-pssa-11gr-historical-achievement-stacked.pdf",
-       plot=p, width=11, height=8.5)
+       plot=p, width=11, height=8.5, useDingbats=F)
 
-peers_melted_11_2005_on <- subset(peers_melted_11, year >= 2005)
+
+pssa_peers_11_2005_on <- subset(pssa_peers_11, year >= 2005)
 
 p <-
-qplot(year, value/100, data=peers_melted_11_2005_on,
+qplot(year, value, data=pssa_peers_11_2005_on,
       facets = subject ~ district, color=achievement,
       main = "Achievement in 11th Grade PSSA",
       xlab = "Year",
@@ -162,25 +163,20 @@ qplot(year, value/100, data=peers_melted_11_2005_on,
       asp = 1,
       geom = c("point", "smooth"),
       method = "lm",
-      se = F,
-      shape = 17
+      se = F
       ) +
   geom_text(aes(label = achievement, x = year + 0.1),
             size = 3,
             color = "black",
             hjust = 0, vjust = 0.5,
-            data = ddply(
-              ddply(subset(peers_melted_11_2005_on, district == "MT LEBANON SD"),
-                    2:6, subset, year == min(year)),
-              .(grade, subject, district),
-              transform,
-              value = value)) +
+            data = subset(pssa_mtlsd_11_2005_on,
+              year == min(year) & subject == min(levels(subject)))) +
   scale_y_continuous(formatter="percent") +
   theme_bw() +
   opts(legend.position = "none")
 
 ggsave("peers-pssa-11gr-historical-achievement-trend-since-2005.pdf",
-       plot=p, width=11, height=8.5)
+       plot=p, width=11, height=8.5, useDingbats=F)
 
 
 ##############################################################################
@@ -216,14 +212,15 @@ school_districts_of_interest <- local({
 subject_districts <- subset(school_districts_of_interest, !is.na(district))
 
 
-## Compute rankings
-pssa_melted_a <- subset(pssa_melted, achievement == "advanced")
-pssa_ecdf <- ddply(pssa_melted_a, .(year, grade, variable),
-                   transform,
-                   value_ecdf = ecdf(value)(value))
+## Compute rankings for advanced portions
 
-pssa_ecdf_extended <- local({
-  df <- merge(pssa_ecdf, school_districts_of_interest, all.x=T)
+pssa_adv      <- subset(pssa, achievement == "advanced")
+pssa_adv_ecdf <- ddply(pssa_adv, .(year, grade, variable),
+                       transform,
+                       value_ecdf = ecdf(value)(value))
+
+pssa_adv_ecdf_extended <- local({
+  df <- merge(pssa_adv_ecdf, school_districts_of_interest, all.x=T)
   within(df, {
     sd <- factor(sd, levels = school_districts_of_interest$sd)
     others <- is.na(sd)
@@ -244,14 +241,14 @@ qplot(year, value_ecdf,
       colour = sd,
       geom = c("line"),
       facets = subject ~ .,
-      data = subset(pssa_ecdf_extended,
+      data = subset(pssa_adv_ecdf_extended,
         sd != "Other" & grade == 11 & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
                       legend = F) +
   geom_text(aes(label = district, x = year + 0.075),
-                data = subset(pssa_ecdf_extended,
+                data = subset(pssa_adv_ecdf_extended,
                   sd != "Other" & grade == 11 & year == 2010),
                 colour = "black",
                 hjust = 0,
@@ -259,29 +256,29 @@ qplot(year, value_ecdf,
   scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
-  geom_point(shape=17) +
+  geom_point() +
   ylim(.95, 1)  # focus on comparable group: top 5% of school districts
 
 ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.pdf",
        plot=p,
-       width=8, height=10, dpi=100)
+       width=8, height=10, dpi=100, useDingbats=F)
 
 ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.png",
-       plot=p)
+       plot=p, useDingbats=F)
 
 
 
 ## Plot the ECDF
 
-pssa_ecdf_reduced <-
-  ddply(pssa_ecdf, .(year, grade, subject, achievement), function(df) {
+pssa_adv_ecdf_reduced <-
+  ddply(pssa_adv_ecdf, .(year, grade, subject, achievement), function(df) {
     not_duped <- !duplicated(df$value)
     data.frame(value = sort(df$value[not_duped]),
                value_ecdf = sort(df$value_ecdf[not_duped]))
   })
 
 p <-
-qplot(value/100, value_ecdf,
+qplot(value, value_ecdf,
       main = paste(sep="\n",
         "PSSA Advanced Performance (11th Grade)",
         "Relating local performance to statewide rankings"),
@@ -290,14 +287,14 @@ qplot(value/100, value_ecdf,
       colour = sd,
       asp = 1,
       geom = c("step"),
-      facets = grade ~ subject,
-      data = subset(pssa_ecdf_reduced,
+      facets = subject ~ grade,
+      data = subset(pssa_adv_ecdf_reduced,
         grade == "11" & achievement == "advanced" & year == max(year))) +
   scale_x_continuous(formatter="percent") +
   scale_y_continuous(formatter="percent")
 
 ggsave(file="mtlsd-pssa-11gr-ecdf.pdf",
-       plot=p, width=11, height=7)
+       plot=p, width=11, height=7, useDingbats=F)
 
 
 
@@ -323,16 +320,15 @@ qplot(class, value, data=nmsqt_rel_m,
       ylab = "Portion of class receiving honor",
       xlab = "Class",
       color=variable,
-      shape=I(17),
       geom=c("point", "smooth"), method="lm", se=F) +
   geom_line(alpha=0.25) +
   scale_y_continuous(formatter="percent")
 
 p <- direct.label(p, list("first.points", hjust=-.1, fontsize=4))
 
-ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
+ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p, useDingbats=F)
 
-ggsave(file="mtlsd-nmsqt-2002_2011.pdf", plot=p)
+ggsave(file="mtlsd-nmsqt-2002_2011.pdf", plot=p, useDingbats=F)
 
 
 
@@ -352,7 +348,6 @@ qplot(year, value_ecdf,
         "by portion of students testing at advanced level"),
       xlab = "Year",
       colour = sd,
-      shape=I(17),
       data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
@@ -500,7 +495,7 @@ qplot(year, value/100, data=peers_wr_melted_11,
   opts(legend.position = "none")
 
 ggsave("peers-wr-11gr-historical-achievement-stacked.pdf",
-       plot=p, width=11, height=8.5)
+       plot=p, width=11, height=8.5, useDingbats=F)
 
 
 
@@ -513,8 +508,7 @@ qplot(year, value/100, data=peers_wr_melted_11,
       asp = 1,
       geom = c("point", "smooth"),
       method = "lm",
-      se = F,
-      shape = 17
+      se = F
       ) +
   geom_text(aes(label = achievement, x = year + 0.1),
             size = 3,
@@ -532,4 +526,4 @@ qplot(year, value/100, data=peers_wr_melted_11,
   opts(legend.position = "none")
 
 ggsave("peers-wr-11gr-historical-achievement-trend-since-2005.pdf",
-       plot=p, width=11, height=8.5)
+       plot=p, width=11, height=8.5, useDingbats=F)
