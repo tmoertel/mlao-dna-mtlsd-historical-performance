@@ -11,7 +11,7 @@
 ## Tom Moertel <tom@mlao.org>
 ## http://www.mlao.org/
 ##
-## 2010-05-30 / Updated 2010-12-23
+## 2010-05-30 / Updated 2010-12-23 / Updated 2011-10-03
 ##
 ## This analysis is an R program:  http://www.r-project.org/
 ##=============================================================================
@@ -249,22 +249,22 @@ qplot(year, value_ecdf,
                       legend = F) +
   geom_text(aes(label = district, x = year + 0.075),
                 data = subset(pssa_adv_ecdf_extended,
-                  sd != "Other" & grade == 11 & year == 2010),
+                  sd != "Other" & grade == 11 & year == 2011),
                 colour = "black",
                 hjust = 0,
                 size = 3) +
-  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
+  scale_x_continuous(breaks = 2004:2011, limits = c(2004, 2013),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
   geom_point() +
   ylim(.95, 1)  # focus on comparable group: top 5% of school districts
 
-ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.pdf",
+ggsave(file="mtlsd-pssa-11gr-rank-2004_2011.pdf",
        plot=p,
        width=8, height=10, dpi=100, useDingbats=F)
 
-ggsave(file="mtlsd-pssa-11gr-rank-2004_2010.png",
-       plot=p, useDingbats=F)
+ggsave(file="mtlsd-pssa-11gr-rank-2004_2011.png",
+       plot=p)
 
 
 
@@ -326,7 +326,7 @@ qplot(class, value, data=nmsqt_rel_m,
 
 p <- direct.label(p, list("first.points", hjust=-.1, fontsize=4))
 
-ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p, useDingbats=F)
+ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
 
 ggsave(file="mtlsd-nmsqt-2002_2011.pdf", plot=p, useDingbats=F)
 
@@ -348,12 +348,12 @@ qplot(year, value_ecdf,
         "by portion of students testing at advanced level"),
       xlab = "Year",
       colour = sd,
-      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+      data = subset(pssa_adv_ecdf_extended, sd == "MTL" & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
                       legend = F) +
-  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
+  scale_x_continuous(breaks = 2004:2011, limits = c(2004, 2013),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
   geom_line(alpha=0.1) +
@@ -372,7 +372,7 @@ qplot(year, value,
       geom = c("point", "smooth"),
       method = "lm",
       asp = 1,
-      data = subset(pssa_ecdf_extended,
+      data = subset(pssa_adv_ecdf_extended,
         grade == 11 & sd == "MTL" & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
@@ -395,7 +395,7 @@ qplot(year, value,
       colour = sd,
       geom = c("point", "smooth"),
       method = "lm",
-      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+      data = subset(pssa_adv_ecdf_extended, sd == "MTL" & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
@@ -415,12 +415,12 @@ qplot(year, value_ecdf,
       colour = sd,
       geom = c("point", "smooth"),
       method = "lm",
-      data = subset(pssa_ecdf_extended, sd == "MTL" & year >= 2004)) +
+      data = subset(pssa_adv_ecdf_extended, sd == "MTL" & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
                       legend = F) +
-  scale_x_continuous(breaks = 2004:2010, limits = c(2004, 2012),
+  scale_x_continuous(breaks = 2004:2011, limits = c(2004, 2013),
                      minor_breaks = F) +
   scale_y_continuous(minor_breaks = F) +
   geom_line(alpha=0.1) +
@@ -437,7 +437,7 @@ qplot(year, value_ecdf,
       geom = c("point", "smooth"),
       method = "lm",
       facets = variable ~ .,
-      data = subset(pssa_ecdf_extended,
+      data = subset(pssa_adv_ecdf_extended,
         sd == "MTL" & grade == 11 & year >= 2004)) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
@@ -451,7 +451,7 @@ qplot(year, value_ecdf,
 ## writing
 ##=============================================================================
 
-wr_merged <- read.csv("data/writing-merged-and-cleaned.csv")
+wr_merged <- read.csv("data/pssa-writing-merged-and-cleaned.csv")
 wr_merged <- transform(wr_merged, grade=factor(grade), aun=factor(aun))
 
 achievement_labels <- c("advanced", "proficient", "basic", "below basic")
