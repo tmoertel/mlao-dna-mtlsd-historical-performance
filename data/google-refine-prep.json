@@ -201,5 +201,731 @@
         "to": "CENTRAL CAMBRIA SD"
       }
     ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BERLIN BROTHERSVALLEY S"
+        ],
+        "to": "BERLIN BROTHERSVALLEY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "ALLEGHENY-CLARION VALLEY"
+        ],
+        "to": "ALLEGHENY-CLARION VALLEY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "ALLEGHENY-CLARION VALLE"
+        ],
+        "to": "ALLEGHENY-CLARION VALLEY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BIG BEAVER FALLS AREA S"
+        ],
+        "to": "BIG BEAVER FALLS AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BLAIRSVILLE-SALTSBURG S"
+        ],
+        "to": "BLAIRSVILLE-SALTSBURG SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "BRANDYWINE HEIGHTS AREA"
+        ],
+        "to": "BRANDYWINE HEIGHTS AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "CLARION-LIMESTONE AREA"
+        ],
+        "to": "CLARION-LIMESTONE AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "CONEMAUGH TOWNSHIP AREA"
+        ],
+        "to": "CONEMAUGH TOWNSHIP AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "EAST STROUDSBURG AREA"
+        ],
+        "to": "EAST STROUDSBURG AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "EAST STROUDSBURG AREA S"
+        ],
+        "to": "EAST STROUDSBURG AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "GREATER NANTICOKE AREA"
+        ],
+        "to": "GREATER NANTICOKE AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "LOWER MORELAND TOWNSHIP"
+        ],
+        "to": "LOWER MORELAND TOWNSHIP SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "NEW KENSINGTON-ARNOLD S"
+        ],
+        "to": "NEW KENSINGTON-ARNOLD SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "NEW KENSINGTON-ARNOLD"
+        ],
+        "to": "NEW KENSINGTON-ARNOLD SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "NORTHERN BEDFORD COUNTY"
+        ],
+        "to": "NORTHERN BEDFORD COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "PHILIPSBURG-OSCEOLA ARE"
+        ],
+        "to": "PHILIPSBURG-OSCEOLA AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "PHILIPSBURG-OSCEOLA AREA"
+        ],
+        "to": "PHILIPSBURG-OSCEOLA AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "RIVERSIDE BEAVER COUNTY"
+        ],
+        "to": "RIVERSIDE BEAVER COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SCHUYLKILL HAVEN AREA"
+        ],
+        "to": "SCHUYLKILL HAVEN AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SCHUYLKILL HAVEN AREA S"
+        ],
+        "to": "SCHUYLKILL HAVEN AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SHANKSVILLE-STONYCREEK"
+        ],
+        "to": "SHANKSVILLE-STONYCREEK SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTH FAYETTE TOWNSHIP"
+        ],
+        "to": "SOUTH FAYETTE TOWNSHIP SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTH WILLIAMSPORT AREA"
+        ],
+        "to": "SOUTH WILLIAMSPORT AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTHERN COLUMBIA AREA"
+        ],
+        "to": "SOUTHERN COLUMBIA AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTHERN HUNTINGDON CO."
+        ],
+        "to": "SOUTHERN HUNTINGDON COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "SOUTHERN HUNTINGDON COU"
+        ],
+        "to": "SOUTHERN HUNTINGDON COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "TURKEYFOOT VALLEY AREA"
+        ],
+        "to": "TURKEYFOOT VALLEY AREA SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "UNIONVILLE-CHADDS FORD"
+        ],
+        "to": "UNIONVILLE-CHADDS FORD SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "UPPER MORELAND TOWNSHIP"
+        ],
+        "to": "UPPER MORELAND TOWNSHIP SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WALLINGFORD-SWARTHMORE"
+        ],
+        "to": "WALLINGFORD-SWARTHMORE SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WESTERN BEAVER COUNTY"
+        ],
+        "to": "WESTERN BEAVER COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WESTERN BEAVER COUNTY S"
+        ],
+        "to": "WESTERN BEAVER COUNTY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "WILLIAMSBURG COMMUNITY"
+        ],
+        "to": "WILLIAMSBURG COMMUNITY SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [
+        {
+          "to": 54,
+          "expression": "grel:facetCount(value, \"value\", \"district\")",
+          "selectError": true,
+          "selectNumeric": true,
+          "selectBlank": true,
+          "name": "district",
+          "columnName": "district",
+          "selectNonNumeric": true,
+          "from": 3,
+          "type": "range"
+        }
+      ],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "NORRISTOWN AREA SD"
+        ],
+        "to": "NORRISTOWN SD"
+      }
+    ]
+  },
+  {
+    "op": "core/mass-edit",
+    "description": "Mass edit cells in column district",
+    "engineConfig": {
+      "facets": [
+        {
+          "to": 54,
+          "expression": "grel:facetCount(value, \"value\", \"district\")",
+          "selectError": true,
+          "selectNumeric": true,
+          "selectBlank": true,
+          "name": "district",
+          "columnName": "district",
+          "selectNonNumeric": true,
+          "from": 3,
+          "type": "range"
+        }
+      ],
+      "mode": "row-based"
+    },
+    "columnName": "district",
+    "expression": "value",
+    "edits": [
+      {
+        "fromBlank": false,
+        "fromError": false,
+        "from": [
+          "CENTER AREA SD"
+        ],
+        "to": "CENTRAL VALLEY SD"
+      }
+    ]
   }
 ]

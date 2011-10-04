@@ -76,6 +76,13 @@ pssa_2010 <- load_pssa("PSSA_Results_Math_and_Reading_District_2010.csv",
                          subset(df, Group=="All Students")
                        })
 
+pssa_2011 <- load_pssa("PSSA_Results_Math_and_Reading_District_2011.csv",
+                       2011, math=8:11, reading=13:16, skip=3,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
+
 # Then I merge them into a single, composite data set
 
 pssa_merged <- rbind(pssa_2002,
@@ -86,7 +93,8 @@ pssa_merged <- rbind(pssa_2002,
                      pssa_2007,
                      pssa_2008,
                      pssa_2009,
-                     pssa_2010)
+                     pssa_2010,
+                     pssa_2011)
 
 
 # Next, I write this composite data set into a file that I can
@@ -170,6 +178,14 @@ wr_2010 <-
                    subset(df, Group=="All Students")
                  })
 
+wr_2011 <-
+  load_pssa_subj("writing",
+                 "PSSA_Results_Writing_District_2011.csv",
+                 2011, cols=7:10, district=3, grade=4, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
 # Then I merge them into a single, composite data set
 
 wr_merged <- rbind(wr_2005,
@@ -177,7 +193,8 @@ wr_merged <- rbind(wr_2005,
                    wr_2007,
                    wr_2008,
                    wr_2009,
-                   wr_2010)
+                   wr_2010,
+                   wr_2011)
 
 
 # Next, I write this composite data set into a file that I can
@@ -219,11 +236,20 @@ sc_2010 <-
                    subset(df, Group=="All Students")
                  })
 
+sc_2011 <-
+  load_pssa_subj("science",
+                 "PSSA_Results_Science_District_2011.csv",
+                 2011, cols=8:11, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
 # Then I merge them into a single, composite data set
 
 sc_merged <- rbind(sc_2008,
                    sc_2009,
-                   sc_2010)
+                   sc_2010,
+                   sc_2011)
 
 
 # Next, I write this composite data set into a file that I can
