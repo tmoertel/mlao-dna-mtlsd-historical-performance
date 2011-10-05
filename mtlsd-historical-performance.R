@@ -260,6 +260,9 @@ pssa_adv_ecdf_extended <- local({
   })
 })
 
+pssa_rank_11 <- subset(pssa_adv_ecdf_extended, sd != "Other" & grade == 11)
+pssa_rank_11_year_min <- min(pssa_rank_11$year)
+pssa_rank_11_year_max <- max(pssa_rank_11$year)
 
 p <-
 qplot(year, value_ecdf,
@@ -271,23 +274,24 @@ qplot(year, value_ecdf,
       colour = sd,
       geom = c("line"),
       facets = subject ~ .,
-      data = subset(pssa_adv_ecdf_extended,
-        sd != "Other" & grade == 11 & year >= 2004)) +
+      data = pssa_rank_11) +
   scale_colour_manual(name = "School District",
                       values = subject_districts$color,
                       breaks = subject_districts$sd,
                       legend = F) +
   geom_text(aes(label = district, x = year + 0.075),
-                data = subset(pssa_adv_ecdf_extended,
+                data = subset(pssa_rank_11,
                   sd != "Other" & grade == 11 & year == 2011),
                 colour = "black",
                 hjust = 0,
                 size = 3) +
-  scale_x_continuous(breaks = 2004:2011, limits = c(2004, 2013),
+  scale_x_continuous(breaks = pssa_rank_11_year_min:pssa_rank_11_year_max,
+                     limits = c(pssa_rank_11_year_min,
+                                pssa_rank_11_year_max + 3),
                      minor_breaks = F) +
-  scale_y_continuous(minor_breaks = F) +
+  scale_y_continuous(minor_breaks = F, breaks = 95:100 / 100) +
   geom_point() +
-  ylim(.95, 1)  # focus on comparable group: top 5% of school districts
+  coord_cartesian(ylim = c(0.945, 1.005))  # focus on peer group in top 5%
 
 ggsave(file="mtlsd-pssa-11gr-rank-2004_2011.pdf",
        plot=p,
