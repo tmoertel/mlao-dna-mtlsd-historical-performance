@@ -325,6 +325,10 @@ ggsave(file="mtlsd-nmsqt-2002_2011.png", plot=p)
 ggsave(file="mtlsd-nmsqt-2002_2011.pdf", plot=p, useDingbats=F)
 
 
+quit(save = "no")  # end of batch analysis
+
+
+
 
 ##############################################################################
 ##   W O R K S P A C E
