@@ -17,8 +17,11 @@ default: all
 .PHONY: all
 all: $(charts)
 
-$(charts): $(analysis)
+$(charts): analysis
+
+analysis: $(analysis)
 	./$(analysis)
+	touch analysis
 
 .PHONY: clean
 clean:
