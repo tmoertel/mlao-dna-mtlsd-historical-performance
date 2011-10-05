@@ -55,7 +55,7 @@ mtlsd_and_peers <- c(mtlsd, peers)
 pssa_peers      <- subset(pssa, district %in% mtlsd_and_peers)
 pssa_peers_11   <- subset(pssa_peers, grade == "11")
 
-pssa_mtlsd      <- subset(pssa_peers, district == "MT LEBANON SD")
+pssa_mtlsd      <- subset(pssa_peers, district == mtlsd)
 pssa_mtlsd_11   <- subset(pssa_mtlsd, grade == "11")
 
 
@@ -85,38 +85,51 @@ ggsave("mtlsd-pssa-11gr-historical-achievement-stacked.pdf",
 
 ## Plot rate of change in MTLSD achievement portions since 2005
 
-pssa_mtlsd_11_2005_on <- subset(pssa_mtlsd_11, year >= 2005)
+do_mtlsd_analysis_from_base_year <- function(base_year) {
 
-p <-
-qplot(year, value, data=pssa_mtlsd_11_2005_on,
-      facets = subject ~ grade, color=achievement,
-      main = "Mt. Lebanon School District: 11th Grade PSSA",
-      xlab = "Year",
-      ylab = "Portion of students testing at given level of achievement",
-      asp = 1,
-      geom = c("point", "smooth"),
-      method = "lm"
-      ) +
-  geom_text(aes(label = achievement, x = year + 0.1),
-            size = 3,
-            hjust = 0, vjust = 0.5,
-            data = subset(pssa_mtlsd_11_2005_on,
-                     year == min(year) & subject == min(levels(subject)))) +
-  scale_y_continuous(formatter="percent") +
-  opts(legend.position = "none")
+  pssa_mtlsd_11_base_year_on <- subset(pssa_mtlsd_11, year >= base_year)
 
-ggsave("mtlsd-pssa-11gr-historical-achievement-trend-since-2005.pdf",
-       plot=p, width=8.5, height=11, useDingbats=F)
+  p <-
+  qplot(year, value, data=pssa_mtlsd_11_base_year_on,
+        facets = subject ~ grade, color=achievement,
+        main = paste("Mt. Lebanon 11th Grade PSSA since", base_year),
+        xlab = "Year",
+        ylab = "Portion of students testing at given level of achievement",
+        asp = 1,
+        geom = c("point", "smooth"),
+        method = "lm"
+        ) +
+    geom_text(aes(label = achievement, x = year + 0.1),
+              size = 3,
+              hjust = 0, vjust = 0.5,
+              data = subset(pssa_mtlsd_11_base_year_on,
+                       year == min(year) & subject == min(levels(subject)))) +
+    scale_y_continuous(formatter="percent") +
+    opts(legend.position = "none") +
+    opts(axis.text.x = theme_text(angle = -90, hjust = 0))
 
 
-## Extract the rate of change, since 2005, in the portion of students
-## at each level of achievement (11th grade)
+  ggsave(paste(sep = "",
+               "mtlsd-pssa-11gr-historical-achievement-trend-since-",
+               base_year, ".pdf"),
+         plot=p, width=8.5, height=11, useDingbats=F)
 
-daply(pssa_mtlsd_11_2005_on, .(subject, achievement), function(df) {
-  ## center on current yr to make intercept predict current yr's achievement
-  df$year <- df$year - max(df$year)
-  lm(value ~ year, data=df)$coeff
-})
+
+  ## Extract the rate of change, since base_year, in the portion of students
+  ## at each level of achievement (11th grade)
+
+  print(paste("Analysis from linear model for base year =", base_year))
+  daply(pssa_mtlsd_11_base_year_on, .(subject, achievement), function(df) {
+    ## center on current yr to make intercept predict current yr's achievement
+    df$year <- df$year - max(df$year)
+    lm(value ~ year, data=df)$coeff
+  })
+}
+
+do_mtlsd_analysis_from_base_year(2005)
+do_mtlsd_analysis_from_base_year(2006)
+do_mtlsd_analysis_from_base_year(2007)
+do_mtlsd_analysis_from_base_year(2008)
 
 
 
@@ -146,31 +159,44 @@ ggsave("peers-pssa-11gr-historical-achievement-stacked.pdf",
        plot=p, width=11, height=8.5, useDingbats=F)
 
 
-pssa_peers_11_2005_on <- subset(pssa_peers_11, year >= 2005)
+do_peers_analysis_from_base_year <- function(base_year) {
 
-p <-
-qplot(year, value, data=pssa_peers_11_2005_on,
-      facets = subject ~ district, color=achievement,
-      main = "Achievement in 11th Grade PSSA",
-      xlab = "Year",
-      ylab = "Portion of students testing at given level of achievement",
-      asp = 1,
-      geom = c("point", "smooth"),
-      method = "lm",
-      se = F
-      ) +
-  geom_text(aes(label = achievement, x = year + 0.1),
-            size = 3,
-            color = "black",
-            hjust = 0, vjust = 0.5,
-            data = subset(pssa_mtlsd_11_2005_on,
-              year == min(year) & subject == min(levels(subject)))) +
-  scale_y_continuous(formatter="percent") +
-  theme_bw() +
-  opts(legend.position = "none")
+  pssa_peers_11_base_year_on <- subset(pssa_peers_11, year >= base_year)
+  pssa_mtlsd_11_base_year_on <- subset(pssa_mtlsd_11, year >= base_year)
 
-ggsave("peers-pssa-11gr-historical-achievement-trend-since-2005.pdf",
-       plot=p, width=11, height=8.5, useDingbats=F)
+  p <-
+    qplot(year, value, data=pssa_peers_11_base_year_on,
+          facets = subject ~ district, color=achievement,
+          main = paste("Achievement in 11th Grade PSSA since", base_year),
+          xlab = "Year",
+          ylab = "Portion of students testing at given level of achievement",
+          asp = 1,
+          geom = c("point", "smooth"),
+          method = "lm",
+          se = F
+          ) +
+      geom_text(aes(label = achievement, x = year + 0.1),
+                size = 3,
+                color = "black",
+                hjust = 0, vjust = 0.5,
+                data = subset(pssa_mtlsd_11_base_year_on,
+                  year == min(year) & subject == min(levels(subject)))) +
+      scale_y_continuous(formatter="percent") +
+      theme_bw() +
+      opts(legend.position = "none") +
+      opts(axis.text.x = theme_text(angle = -90, hjust = 0))
+
+  ggsave(paste(sep = "",
+               "peers-pssa-11gr-historical-achievement-trend-since-",
+               base_year, ".pdf"),
+         plot=p, width=11, height=8.5, useDingbats=F)
+}
+
+do_peers_analysis_from_base_year(2005)
+do_peers_analysis_from_base_year(2006)
+do_peers_analysis_from_base_year(2007)
+do_peers_analysis_from_base_year(2008)
+
 
 
 ##############################################################################
