@@ -245,7 +245,7 @@ subject_districts <- subset(school_districts_of_interest, !is.na(district))
 ## Compute rankings for advanced portions
 
 pssa_adv      <- subset(pssa, achievement == "advanced")
-pssa_adv_ecdf <- ddply(pssa_adv, .(year, grade, achievement),
+pssa_adv_ecdf <- ddply(pssa_adv, .(year, grade, subject, achievement),
                        transform,
                        value_ecdf = ecdf(value)(value))
 
