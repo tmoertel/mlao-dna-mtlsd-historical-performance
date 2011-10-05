@@ -12,107 +12,6 @@
 ## First, I read in the data sets for math and reading
 ##=============================================================================
 
-load_pssa <- function(name,
-                      year,
-                      math,    # math columns, advanced to below basic
-                      reading, # reading columns, advanced to below basic
-                      skip = 0,
-                      selector = function(df) df,
-                      aun = 1,
-                      county = 2,
-                      district = 4,
-                      grade = 5) {
-  df <- read.csv(name,
-                 skip = skip, na.strings = "#NULL!",
-                 as.is=c(grade, math, reading))
-  df <- subset(df, ! grepl("total", df[[grade]], ignore.case=T))
-  df <- selector(df)
-  df <- data.frame(year = year,
-                   aun = df[[aun]],
-                   county = df[[county]],
-                   district = df[[district]],
-                   grade = as.numeric(df[[grade]]),
-                   math_a     = as.numeric(df[[math[1]]]),
-                   math_p     = as.numeric(df[[math[2]]]),
-                   math_b     = as.numeric(df[[math[3]]]),
-                   math_bb    = as.numeric(df[[math[4]]]),
-                   reading_a  = as.numeric(df[[reading[1]]]),
-                   reading_p  = as.numeric(df[[reading[2]]]),
-                   reading_b  = as.numeric(df[[reading[3]]]),
-                   reading_bb = as.numeric(df[[reading[4]]]))
-  df
-}
-
-pssa_2002 <- load_pssa("2002MathandReadingperformancelevelsalldistricts.csv",
-                       2002, math=8:11, reading=12:15)
-
-pssa_2003 <- load_pssa("2003MathandReadingperformancelevelsalldistricts.csv",
-                       2003, math=8:11, reading=12:15)
-
-pssa_2004 <- load_pssa("2004MathandReadingperformancelevelsalldistricts.csv",
-                       2004, math=8:11, reading=12:15)
-
-pssa_2005 <- load_pssa("2005MathandReadingperformancelevelsalldistricts.csv",
-                       2005, math=9:12, reading=14:17)
-
-pssa_2006 <- load_pssa("2006 District Level PSSA Results.csv",
-                       2006, math=8:11, reading=14:17, skip=3)
-
-pssa_2007 <- load_pssa("2007 District Level PSSA Results.csv",
-                       2007, math=7:10, reading=12:15, skip=4)
-
-pssa_2008 <- load_pssa("2008 PostAYP District Level PSSA Results.csv",
-                       2008, math=7:10, reading=12:15, skip=4)
-
-pssa_2009 <- load_pssa("PSSA_Results_Math_and_Reading_District_2009.csv",
-                       2009, math=8:11, reading=13:16, skip=3,
-                       selector = function(df) {
-                         subset(df, Group=="All Students")
-                       })
-
-pssa_2010 <- load_pssa("PSSA_Results_Math_and_Reading_District_2010.csv",
-                       2010, math=8:11, reading=13:16, skip=2,
-                       selector = function(df) {
-                         subset(df, Group=="All Students")
-                       })
-
-pssa_2011 <- load_pssa("PSSA_Results_Math_and_Reading_District_2011.csv",
-                       2011, math=8:11, reading=13:16, skip=3,
-                       selector = function(df) {
-                         subset(df, Group=="All Students")
-                       })
-
-
-# Then I merge them into a single, composite data set
-
-pssa_merged <- rbind(pssa_2002,
-                     pssa_2003,
-                     pssa_2004,
-                     pssa_2005,
-                     pssa_2006,
-                     pssa_2007,
-                     pssa_2008,
-                     pssa_2009,
-                     pssa_2010,
-                     pssa_2011)
-
-
-# Next, I write this composite data set into a file that I can
-# further clean using Google Refine
-
-write.csv(pssa_merged, file="pssa_math_reading_merged_raw.csv")
-
-# After saving this data, I load it into Google Refine and apply the
-# data-cleaning transformations specified in the file
-# google-refine-prep.json, exporting the result, finally, as the file
-# pssa-math-reading-merged-and-cleaned.csv.
-
-
-
-##=============================================================================
-## Next, I read in the data sets for writing
-##=============================================================================
-
 load_pssa_subj <-
   function(subject,
            file,
@@ -134,13 +33,83 @@ load_pssa_subj <-
                      county = df[[county]],
                      district = df[[district]],
                      grade = as.numeric(df[[grade]]),
+                     subject = subject,
                      a  = as.numeric(df[[cols[1]]]),
                      p  = as.numeric(df[[cols[2]]]),
                      b  = as.numeric(df[[cols[3]]]),
                      bb = as.numeric(df[[cols[4]]]))
-    names(df)[6:9] <- paste(sep="_", subject, c("a", "p", "b", "bb"))
     df
   }
+
+
+load_mtrd <-
+  function(file,
+           year,
+           math,    # math columns, advanced to below basic
+           reading, # reading columns, advanced to below basic
+           ...) {
+    rbind(load_pssa_subj("math", file, year, cols = math, ...),
+          load_pssa_subj("reading", file, year, cols = reading, ...))
+}
+
+mtrd_2002 <- load_mtrd("2002MathandReadingperformancelevelsalldistricts.csv",
+                       2002, math=8:11, reading=12:15)
+
+mtrd_2003 <- load_mtrd("2003MathandReadingperformancelevelsalldistricts.csv",
+                       2003, math=8:11, reading=12:15)
+
+mtrd_2004 <- load_mtrd("2004MathandReadingperformancelevelsalldistricts.csv",
+                       2004, math=8:11, reading=12:15)
+
+mtrd_2005 <- load_mtrd("2005MathandReadingperformancelevelsalldistricts.csv",
+                       2005, math=9:12, reading=14:17)
+
+mtrd_2006 <- load_mtrd("2006 District Level PSSA Results.csv",
+                       2006, math=8:11, reading=14:17, skip=3)
+
+mtrd_2007 <- load_mtrd("2007 District Level PSSA Results.csv",
+                       2007, math=7:10, reading=12:15, skip=4)
+
+mtrd_2008 <- load_mtrd("2008 PostAYP District Level PSSA Results.csv",
+                       2008, math=7:10, reading=12:15, skip=4)
+
+mtrd_2009 <- load_mtrd("PSSA_Results_Math_and_Reading_District_2009.csv",
+                       2009, math=8:11, reading=13:16, skip=3,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
+mtrd_2010 <- load_mtrd("PSSA_Results_Math_and_Reading_District_2010.csv",
+                       2010, math=8:11, reading=13:16, skip=2,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
+mtrd_2011 <- load_mtrd("PSSA_Results_Math_and_Reading_District_2011.csv",
+                       2011, math=8:11, reading=13:16, skip=3,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
+
+# Then I merge them into a single, composite data set
+
+mtrd_merged <- rbind(mtrd_2002,
+                     mtrd_2003,
+                     mtrd_2004,
+                     mtrd_2005,
+                     mtrd_2006,
+                     mtrd_2007,
+                     mtrd_2008,
+                     mtrd_2009,
+                     mtrd_2010,
+                     mtrd_2011)
+
+
+##=============================================================================
+## Next, I read in the data sets for writing
+##=============================================================================
+
 
 wr_2005 <-
   load_pssa_subj("writing",
@@ -197,19 +166,6 @@ wr_merged <- rbind(wr_2005,
                    wr_2011)
 
 
-# Next, I write this composite data set into a file that I can
-# further clean using Google Refine
-
-write.csv(wr_merged, file="pssa_writing_merged_raw.csv")
-
-# After saving this data, I load it into Google Refine and apply the
-# data-cleaning transformations specified in the file
-# google-refine-prep.json, exporting the result, finally, as the file
-# pssa-writing-merged-and-cleaned.csv.
-
-
-
-
 ##=============================================================================
 ## Next, I read in the data sets for science
 ##=============================================================================
@@ -252,12 +208,21 @@ sc_merged <- rbind(sc_2008,
                    sc_2011)
 
 
+
+##=============================================================================
+## Finally, I merge all the data sets into one
+##=============================================================================
+
+
+pssa_all <- rbind(mtrd_merged, wr_merged, sc_merged)
+
+
 # Next, I write this composite data set into a file that I can
 # further clean using Google Refine
 
-write.csv(sc_merged, file="pssa_science_merged_raw.csv")
+write.csv(pssa_all, file="pssa_all_raw.csv")
 
 # After saving this data, I load it into Google Refine and apply the
 # data-cleaning transformations specified in the file
 # google-refine-prep.json, exporting the result, finally, as the file
-# pssa-science-merged-and-cleaned.csv.
+# pssa-all-merged-and-cleaned.csv.

@@ -32,24 +32,18 @@ library(directlabels)
 
 achievement_labels <- c("advanced", "proficient", "basic", "below basic")
 
-load_melted <- function(file) melt(read.csv(file), 1:5)
-
-pssa_mr <- load_melted("data/pssa-math-reading-merged-and-cleaned.csv")
-pssa_wr <- load_melted("data/pssa-writing-merged-and-cleaned.csv")
-pssa_sc <- load_melted("data/pssa-science-merged-and-cleaned.csv")
-
-pssa <- rbind(pssa_mr, pssa_wr, pssa_sc)
+pssa <- read.csv("data/pssa-all-merged-and-cleaned.csv")
+pssa <- transform(pssa, aun = NULL, county = NULL)
+pssa <- melt(pssa, 1:4)
 pssa <- subset(pssa, !is.na(value))  # trim sds w/o results
 pssa <- transform(pssa,
-            grade = factor(grade),
-            value = value/100,  # turn percentages (34%) into portions (0.34)
-            aun = NULL,
-            county = NULL,
-            subject = laply(strsplit(as.character(variable),"_"),identity)[,1],
-            achievement = factor(
-              laply(strsplit(as.character(variable), "_"), identity)[,2],
-              levels = c("a", "p", "b", "bb"),
-              labels = achievement_labels))
+                  grade = factor(grade),
+                  value = value/100,  # 34 => 34% = 0.34
+                  variable = NULL,
+                  achievement = factor(
+                    variable,
+                    levels = c("a", "p", "b", "bb"),
+                    labels = achievement_labels))
 
 
 ## Extract convenient subsets for MTSLD and peers
@@ -215,7 +209,7 @@ subject_districts <- subset(school_districts_of_interest, !is.na(district))
 ## Compute rankings for advanced portions
 
 pssa_adv      <- subset(pssa, achievement == "advanced")
-pssa_adv_ecdf <- ddply(pssa_adv, .(year, grade, variable),
+pssa_adv_ecdf <- ddply(pssa_adv, .(year, grade, achievement),
                        transform,
                        value_ecdf = ecdf(value)(value))
 
@@ -319,7 +313,7 @@ qplot(class, value, data=nmsqt_rel_m,
         "on National Merit Scholarship Qualifying Test"),
       ylab = "Portion of class receiving honor",
       xlab = "Class",
-      color=variable,
+      color = variable,
       geom=c("point", "smooth"), method="lm", se=F) +
   geom_line(alpha=0.25) +
   scale_y_continuous(formatter="percent")
