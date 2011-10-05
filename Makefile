@@ -19,9 +19,14 @@ all: $(charts)
 
 $(charts): analysis
 
-analysis: $(analysis)
+analysis: $(analysis) data/pssa-all-merged-and-cleaned.csv
 	./$(analysis)
 	touch analysis
+
+
+.PHONY: db
+db: bin/pssa-csv-to-db.sh data/pssa-all-merged-and-cleaned.csv
+	cd data && ../bin/pssa-csv-to-db.sh pssa-all-merged-and-cleaned.csv
 
 .PHONY: clean
 clean:
