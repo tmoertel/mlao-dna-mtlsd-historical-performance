@@ -64,7 +64,7 @@ pssa_mtlsd_11   <- subset(pssa_mtlsd, grade == "11")
 p <-
 qplot(year, value, data=pssa_mtlsd_11,
       facets = subject ~ ., geom="area", fill=achievement,
-      main = "Mt. Lebanon School District: 11th Grade PSSA",
+      main = "Mt. Lebanon School District:\n11th Grade PSSA",
       xlab = "Year",
       ylab = "Portion of students testing at given level of achievement",
       asp = 1
@@ -80,19 +80,22 @@ qplot(year, value, data=pssa_mtlsd_11,
   opts(legend.position = "none")
 
 ggsave("mtlsd-pssa-11gr-historical-achievement-stacked.pdf",
-       plot=p, width=8.5, height=11, useDingbats=F)
+       plot=p, width=3.75, height=11, useDingbats=F)
 
 
 ## Plot rate of change in MTLSD achievement portions since 2005
 
-do_mtlsd_analysis_from_base_year <- function(base_year) {
+do_mtlsd_analysis_from_base_year <- function(base_year, min_year = 2005) {
 
   pssa_mtlsd_11_base_year_on <- subset(pssa_mtlsd_11, year >= base_year)
+
+  x_max <- max(pssa_mtlsd_11_base_year_on$year)
+  y_max <- max(subset(pssa_mtlsd_11, year >= min_year)$value)
 
   p <-
   qplot(year, value, data=pssa_mtlsd_11_base_year_on,
         facets = subject ~ grade, color=achievement,
-        main = paste("Mt. Lebanon 11th Grade PSSA since", base_year),
+        main = paste("Mt. Lebanon 11th Grade\nPSSA since", base_year),
         xlab = "Year",
         ylab = "Portion of students testing at given level of achievement",
         asp = 1,
@@ -104,7 +107,9 @@ do_mtlsd_analysis_from_base_year <- function(base_year) {
               hjust = 0, vjust = 0.5,
               data = subset(pssa_mtlsd_11_base_year_on,
                        year == min(year) & subject == min(levels(subject)))) +
-    scale_y_continuous(formatter="percent") +
+    scale_y_continuous(formatter = "percent",
+                       limits = c(0, y_max)) +
+    xlim(min_year, x_max) +
     opts(legend.position = "none") +
     opts(axis.text.x = theme_text(angle = -90, hjust = 0))
 
@@ -112,7 +117,7 @@ do_mtlsd_analysis_from_base_year <- function(base_year) {
   ggsave(paste(sep = "",
                "mtlsd-pssa-11gr-historical-achievement-trend-since-",
                base_year, ".pdf"),
-         plot=p, width=8.5, height=11, useDingbats=F)
+         plot=p, width=3.75, height=11, useDingbats=F)
 
 
   ## Extract the rate of change, since base_year, in the portion of students
@@ -156,13 +161,16 @@ qplot(year, value, data=pssa_peers_11,
   opts(legend.position = "none")
 
 ggsave("peers-pssa-11gr-historical-achievement-stacked.pdf",
-       plot=p, width=11, height=8.5, useDingbats=F)
+       plot=p, width=6.5, height=8.5, useDingbats=F)
 
 
-do_peers_analysis_from_base_year <- function(base_year) {
+do_peers_analysis_from_base_year <- function(base_year, min_year = 2005) {
 
   pssa_peers_11_base_year_on <- subset(pssa_peers_11, year >= base_year)
   pssa_mtlsd_11_base_year_on <- subset(pssa_mtlsd_11, year >= base_year)
+
+  x_max <- max(pssa_peers_11_base_year_on$year)
+  y_max <- max(subset(pssa_peers_11, year >= min_year)$value)
 
   p <-
     qplot(year, value, data=pssa_peers_11_base_year_on,
@@ -182,14 +190,16 @@ do_peers_analysis_from_base_year <- function(base_year) {
                 data = subset(pssa_mtlsd_11_base_year_on,
                   year == min(year) & subject == min(levels(subject)))) +
       scale_y_continuous(formatter="percent") +
+      xlim(min_year, x_max) +
       theme_bw() +
+      coord_cartesian(ylim = c(0, y_max + 0.05)) +
       opts(legend.position = "none") +
       opts(axis.text.x = theme_text(angle = -90, hjust = 0))
 
   ggsave(paste(sep = "",
                "peers-pssa-11gr-historical-achievement-trend-since-",
                base_year, ".pdf"),
-         plot=p, width=11, height=8.5, useDingbats=F)
+         plot=p, width=6.5, height=8.5, useDingbats=F)
 }
 
 do_peers_analysis_from_base_year(2005)
@@ -301,7 +311,7 @@ p <-
 qplot(value, value_ecdf,
       main = paste(sep="\n",
         "PSSA Advanced Performance (11th Grade)",
-        "Relating local performance to statewide rankings"),
+        "Local performance vs. statewide rankings"),
       ylab = "Ranking among Pennsylvania school districts",
       xlab = "Portion of students testing at advanced level",
       colour = sd,
@@ -314,7 +324,7 @@ qplot(value, value_ecdf,
   scale_y_continuous(formatter="percent")
 
 ggsave(file="mtlsd-pssa-11gr-ecdf.pdf",
-       plot=p, width=11, height=7, useDingbats=F)
+       plot=p, width=4, height=7, useDingbats=F)
 
 
 
