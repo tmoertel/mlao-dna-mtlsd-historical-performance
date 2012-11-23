@@ -91,6 +91,12 @@ mtrd_2011 <- load_mtrd("PSSA_Results_Math_and_Reading_District_2011.csv",
                          subset(df, Group=="All Students")
                        })
 
+mtrd_2012 <- load_mtrd("2012 PSSA Math Reading District ALL Students Group by grade level.csv",
+                       2012, math=8:11, reading=13:16, skip=3,
+                       selector = function(df) {
+                         subset(df, Group=="All Students")
+                       })
+
 
 # Then I merge them into a single, composite data set
 
@@ -103,7 +109,8 @@ mtrd_merged <- rbind(mtrd_2002,
                      mtrd_2008,
                      mtrd_2009,
                      mtrd_2010,
-                     mtrd_2011)
+                     mtrd_2011,
+                     mtrd_2012)
 
 
 ##=============================================================================
@@ -155,6 +162,14 @@ wr_2011 <-
                    subset(df, Group=="All Students")
                  })
 
+wr_2012 <-
+  load_pssa_subj("writing",
+                 "2012 PSSA Writing District All Students Group by grade level.csv",
+                 2012, cols=8:11, district=4, grade=5, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
 # Then I merge them into a single, composite data set
 
 wr_merged <- rbind(wr_2005,
@@ -163,7 +178,8 @@ wr_merged <- rbind(wr_2005,
                    wr_2008,
                    wr_2009,
                    wr_2010,
-                   wr_2011)
+                   wr_2011,
+                   wr_2012)
 
 
 ##=============================================================================
@@ -200,12 +216,21 @@ sc_2011 <-
                    subset(df, Group=="All Students")
                  })
 
+sc_2012 <-
+  load_pssa_subj("science",
+                 "2012 PSSA Science District All Students Group by grade level.csv",
+                 2012, cols=8:11, skip=3,
+                 selector = function(df) {
+                   subset(df, Group=="All Students")
+                 })
+
 # Then I merge them into a single, composite data set
 
 sc_merged <- rbind(sc_2008,
                    sc_2009,
                    sc_2010,
-                   sc_2011)
+                   sc_2011,
+                   sc_2012)
 
 
 

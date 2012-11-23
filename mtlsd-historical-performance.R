@@ -5,13 +5,13 @@
 ## Analysis of Historical Performance of
 ## the Mt. Lebanon, Pennsylvania, School District.
 ##
-## Primary sources:  2002-10 PSSA data
+## Primary sources:  2002-12 PSSA data
 ##
 ## Analysis by the Mt. Lebanon Accountability Organization
 ## Tom Moertel <tom@mlao.org>
 ## http://www.mlao.org/
 ##
-## 2010-05-30 / Updated 2010-12-23 / Updated 2011-10-03
+## 2010-05-30 / Updated 2010-12-23 / Updated 2011-10-03 / Updated 2012-11-23
 ##
 ## This analysis is an R program:  http://www.r-project.org/
 ##=============================================================================
